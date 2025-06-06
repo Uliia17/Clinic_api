@@ -1,0 +1,14 @@
+import { Router } from "express";
+import { doctorRouter } from "./doctor.router";
+import { clinicRouter } from "./clinic.router";
+import { serviceRouter } from "./service.router";
+import { authRouter } from "./auth.router";
+
+const router = Router();
+
+router.use("/doctors", doctorRouter);
+router.use("/clinics", clinicRouter);
+router.use("/services", serviceRouter);
+router.use("/auth", authRouter);
+
+export const apiRouter = router;
