@@ -1,0 +1,758 @@
+{
+	"info": {
+		"_postman_id": "3cbf253c-c821-4d45-ba61-d95daa031980",
+		"name": "Clinic_api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41341946"
+	},
+	"item": [
+		{
+			"name": "Doctors",
+			"item": [
+				{
+					"name": "all-doctors",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainurl}}/doctors",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"doctors"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Anna",
+									"disabled": true
+								},
+								{
+									"key": "surname",
+									"value": "Ivanov",
+									"disabled": true
+								},
+								{
+									"key": "phone",
+									"value": "+38050",
+									"disabled": true
+								},
+								{
+									"key": "email",
+									"value": "polska1994@i.ua",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "doctors-by-id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainurl}}/doctors/:id",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"doctors",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "6841e58de455d0457b03de55"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "doctors-update-by-id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "Anna",
+									"type": "text"
+								},
+								{
+									"key": "surname",
+									"value": "Pavlova",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "+380667771212",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "polsk1992@i.ua",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{mainurl}}/doctors/:id",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"doctors",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "6841e58de455d0457b03de55"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "doctors-delete-by-id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{mainurl}}/doctors/:id",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"doctors",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "6841f9454453d1ecf4af9bfa"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-doctors",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Anna\",\r\n  \"surname\": \"Pavlova\",\r\n  \"phone\": \"+380657771212\",\r\n  \"email\": \"polska1993@i.ua\",\r\n  \"password\": \"Password123\",\r\n  \"clinics\": [\"Odrex\", \"Into-Sana\"],     \r\n  \"services\": [\"surgery\"]   \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{mainurl}}/doctors",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"doctors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "avatar",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": "/C:/Users/Юлия/OneDrive/Изображения/avatar.png.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{mainurl}}/doctors/upload-avatar/:id",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"doctors",
+								"upload-avatar",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "6841fa64acc4feb0a774e2c6"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Clinics",
+			"item": [
+				{
+					"name": "create-clinics",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "OnClinic",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{mainurl}}/clinics",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"clinics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all-clinics",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainurl}}/clinics?name=Od",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"clinics"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Od"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Services",
+			"item": [
+				{
+					"name": "create-services",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "Ophthalmologist",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{mainurl}}/services",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"services"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all-services",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainurl}}/services?name=ur",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"services"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "ur"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "sign-up",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Alla\",\r\n  \"surname\": \"Ivanova\",\r\n  \"phone\": \"+380667778877\",\r\n  \"email\": \"655ghjn@gmail.com\",\r\n  \"password\": \"gghR#3\",\r\n  \"clinics\": [\"OnClinic\", \"Odrex\"],\r\n  \"services\": [\"surgery\", \"therapist\"]  \r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{mainurl}}/auth/sign-up",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"auth",
+								"sign-up"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sign-in",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();\r",
+									"pm.environment.set(\"accessToken\", res.tokens.accessToken);\r",
+									"pm.environment.set(\"refreshToken\", res.tokens.refreshToken);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "polska1991@i.ua",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Pavlova+38",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{mainurl}}/auth/sign-in",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"auth",
+								"sign-in"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "me",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mainurl}}/auth/me",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"auth",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register-admin",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "polska1991@i.ua",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "polska1Y!",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{mainurl}}/auth/register-admin",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"auth",
+								"register-admin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sign-in-admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();\r",
+									"pm.environment.set(\"accessToken\", res.tokens.accessToken);\r",
+									"pm.environment.set(\"refreshToken\", res.tokens.refreshToken);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "polska1991@i.ua",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "polska1Y!",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{mainurl}}/auth/sign-in",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"auth",
+								"sign-in"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "activate",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{mainurl}}/auth/activate/:token",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"auth",
+								"activate",
+								":token"
+							],
+							"variable": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4NDFlMTdjNjlhNGRmODU5ZmE1ZDY0MCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0OTE0ODAyOSwiZXhwIjoxNzQ5MTUxNjI5fQ.gHFI7X8F6--Fp68Im52BD8ghZk5Ktuk-O_Kyy6L7ctU"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refresh",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();\r",
+									"pm.environment.set(\"accessToken\", res.accessToken);\r",
+									"pm.environment.set(\"refreshToken\", res.refreshToken);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "refreshToken",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4iLCJkb2N0b3JJZCI6IjY4NDFlMTdjNjlhNGRmODU5ZmE1ZDY0MCIsImlhdCI6MTc0OTE0OTMyNSwiZXhwIjoxNzQ5MTUwNTI1fQ.Qa8_Tvf0fQVJIb_86m5TGFS-eyu3LF3N6_LsADvCyp8",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{mainurl}}/auth/refresh",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "recovery-by-email",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "polska1991@i.ua",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{mainurl}}/auth/recovery/",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"auth",
+								"recovery",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "recovery-by-password",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "password",
+									"value": "polska1Y!",
+									"type": "text"
+								},
+								{
+									"key": "",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{mainurl}}/auth/recovery/:token",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"auth",
+								"recovery",
+								":token"
+							],
+							"variable": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4NDFlMTdjNjlhNGRmODU5ZmE1ZDY0MCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0OTE1MDk5NiwiZXhwIjoxNzQ5MTUxNTk2fQ.p9lgBOUbm1JXoT-0TKhquudwYQp3-nB5o4LmGU4yQFo"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

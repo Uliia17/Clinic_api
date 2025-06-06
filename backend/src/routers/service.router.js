@@ -1,0 +1,12 @@
+import { Router } from "express";
+import { serviceController } from "../controllers/service.controller";
+import { commonMiddleware } from "../middlewares/common.middleware";
+import { ServiceValidator } from "../validators/service.validator";
+import { authMiddleware } from "../middlewares/auth.middleware";
+const router = Router();
+router.get("/", authMiddleware.checkAccessToken, serviceController.getAll);
+router.post("/", authMiddleware.checkAccessToken, authMiddleware.isAdmin, commonMiddleware.validateBody(ServiceValidator.create), serviceController.create);
+router.get("/:id", authMiddleware.checkAccessToken, commonMiddleware.isIdValidate("id"), serviceController.getById);
+router.put("/:id", authMiddleware.checkAccessToken, authMiddleware.isAdmin, commonMiddleware.isIdValidate("id"), commonMiddleware.validateBody(ServiceValidator.update), serviceController.updateById);
+router.delete("/:id", authMiddleware.checkAccessToken, authMiddleware.isAdmin, commonMiddleware.isIdValidate("id"), serviceController.deleteById);
+export const serviceRouter = router;
