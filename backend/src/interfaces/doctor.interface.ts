@@ -1,56 +1,57 @@
+import { Types } from "mongoose";
 import { IBase } from "./base.interface";
 import { RoleEnum } from "../enums/role.enum";
 
-interface IDoctor extends IBase {
-    _id: string;
+export interface IDoctor extends IBase {
+    _id: Types.ObjectId;
     name: string;
     surname: string;
     phone: string;
     email: string;
-    avatar?: string;
-    clinics: string[];
-    services: string[];
     password: string;
+    avatar?: string;
+    clinics: Types.ObjectId[];
+    services: Types.ObjectId[];
     role: RoleEnum;
     isDeleted: boolean;
     isVerified: boolean;
     isActive: boolean;
 }
 
-interface IDoctorQuery {
-    pageSize: number;
-    page: number;
-    order?: string;
+export interface IDoctorCreateDTO {
+    name: string;
+    surname: string;
+    phone: string;
+    email: string;
+    password: string;
+    role?: RoleEnum;
+    clinics: (string | Types.ObjectId)[];
+    services: (string | Types.ObjectId)[];
+    avatar?: string;
+}
+
+export interface IDoctorUpdateDTO {
     name?: string;
     surname?: string;
     phone?: string;
     email?: string;
+    password?: string;
+    avatar?: string;
+    clinics?: (string | Types.ObjectId)[];
+    services?: (string | Types.ObjectId)[];
+    role?: RoleEnum;
+    isDeleted?: boolean;
+    isVerified?: boolean;
+    isActive?: boolean;
 }
 
-interface IDoctorCreateDTO {
-    email: string;
-    password: string;
-    name: string;
-    surname: string;
-    phone: string;
-    role: RoleEnum;
-    clinics: string[];
-    services: string[];
+export interface IDoctorQuery {
+    name?: string;
+    surname?: string;
+    phone?: string;
+    email?: string;
+    search?: string;
+    order?: string;
+    page?: number;
+    pageSize?: number;
 }
-
-type IDoctorUpdateDTO = Partial<
-    Pick<
-        IDoctor,
-        | "name"
-        | "surname"
-        | "phone"
-        | "password"
-        | "clinics"
-        | "services"
-        | "isVerified"
-        | "isActive"
-        | "avatar"
-    >
->;
-
-export type { IDoctor, IDoctorUpdateDTO, IDoctorCreateDTO, IDoctorQuery };

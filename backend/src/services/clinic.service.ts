@@ -4,36 +4,34 @@ import { Doctor } from "../models/doctor.model";
 import { ApiError } from "../errors/api.error";
 import { StatusCodesEnum } from "../enums/status.codes.enum";
 
-type ClinicResult = IClinic & {
-    _id: string | null;
-    doctors?: string[];
-    services?: string[];
-};
-
 class ClinicService {
-    public async searchClinics(query: {
-        name?: string;
-    }): Promise<ClinicResult[]> {
+    public async searchClinics(query: { name?: string }): Promise<IClinic[]> {
         const nameFilter = query.name?.trim().toLowerCase() || "";
 
-        const clinicsFromCollection = nameFilter
-            ? await Clinic.find({
-                  name: { $regex: nameFilter, $options: "i" },
-              }).lean()
-            : await Clinic.find().lean();
-
+        const clinicsFromCollection = await Clinic.find().lean();
         const doctors = await Doctor.find({ isDeleted: false }).lean();
 
+        const clinicMap = new Map(
+            clinicsFromCollection.map((c) => [c._id.toString(), c]),
+        );
+
         const clinicNamesFromDoctorsSet = new Set<string>();
+
         for (const doc of doctors) {
             if (Array.isArray(doc.clinics)) {
-                for (const clinicName of doc.clinics) {
-                    if (clinicName.toLowerCase().includes(nameFilter)) {
-                        clinicNamesFromDoctorsSet.add(clinicName);
+                for (const id of doc.clinics) {
+                    const idStr = id.toString();
+                    const clinic = clinicMap.get(idStr);
+                    if (
+                        clinic &&
+                        clinic.name.toLowerCase().includes(nameFilter)
+                    ) {
+                        clinicNamesFromDoctorsSet.add(clinic.name);
                     }
                 }
             }
         }
+
         const clinicNamesFromCollectionSet = new Set(
             clinicsFromCollection.map((c) => c.name),
         );
@@ -42,8 +40,8 @@ class ClinicService {
             clinicNamesFromDoctorsSet,
         ).filter((name) => !clinicNamesFromCollectionSet.has(name));
 
-        const clinicsFromDoctorsWithoutFullData: ClinicResult[] =
-            clinicsOnlyFromDoctors.map((name) => ({
+        const clinicsFromDoctorsWithoutFullData = clinicsOnlyFromDoctors.map(
+            (name) => ({
                 _id: null,
                 name,
                 address: null,
@@ -52,21 +50,19 @@ class ClinicService {
                 services: [],
                 createdAt: new Date(0),
                 updatedAt: new Date(0),
-            }));
+            }),
+        );
 
-        const allClinics: ClinicResult[] = [
+        const allClinics: any[] = [
             ...clinicsFromCollection,
             ...clinicsFromDoctorsWithoutFullData,
         ];
 
         for (const clinic of allClinics) {
-            // Лікарі, які працюють у цій клініці (порівняння по назві)
-            const clinicDoctors = doctors.filter(
-                (doc) =>
-                    Array.isArray(doc.clinics) &&
-                    doc.clinics.some(
-                        (cn) => cn.toLowerCase() === clinic.name.toLowerCase(),
-                    ),
+            const clinicDoctors = doctors.filter((doc) =>
+                doc.clinics.some(
+                    (id) => id.toString() === clinic._id?.toString(),
+                ),
             );
 
             clinic.doctors = clinicDoctors.map(
@@ -75,9 +71,7 @@ class ClinicService {
 
             const servicesSet = new Set<string>();
             for (const doc of clinicDoctors) {
-                if (Array.isArray(doc.services)) {
-                    doc.services.forEach((s) => servicesSet.add(s));
-                }
+                doc.services?.forEach((s) => servicesSet.add(s.toString()));
             }
             clinic.services = Array.from(servicesSet);
         }

@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-
 import { IAuth } from "../interfaces/auth.interface";
 import { ITokenPayload } from "../interfaces/token.interface";
 import { tokenRepository } from "../repositories/token.repository";
@@ -8,6 +7,7 @@ import { tokenService } from "../services/token.service";
 import { StatusCodesEnum } from "../enums/status.codes.enum";
 import { doctorService } from "../services/doctor.service";
 import { DoctorValidator } from "../validators/doctor.validator";
+import { Types } from "mongoose";
 
 class AuthController {
     public async signUp(
@@ -25,6 +25,13 @@ class AuthController {
                 });
                 return;
             }
+
+            value.clinics = value.clinics.map(
+                (id: string) => new Types.ObjectId(id),
+            );
+            value.services = value.services.map(
+                (id: string) => new Types.ObjectId(id),
+            );
 
             const data = await authService.signUp(value);
             res.status(StatusCodesEnum.CREATED).json(data);
@@ -48,6 +55,7 @@ class AuthController {
             const tokenPayload = res.locals.tokenPayload as ITokenPayload;
             const { doctorId } = tokenPayload;
             const doctor = await doctorService.getById(doctorId);
+
             res.status(StatusCodesEnum.OK).json(doctor);
         } catch (e) {
             next(e);
@@ -59,7 +67,10 @@ class AuthController {
             const { role, doctorId } = res.locals.tokenPayload as ITokenPayload;
 
             const tokens = tokenService.generateTokens({ role, doctorId });
-            await tokenRepository.create({ ...tokens, _doctorId: doctorId });
+            await tokenRepository.create({
+                ...tokens,
+                _doctorId: new Types.ObjectId(doctorId),
+            });
 
             res.status(StatusCodesEnum.OK).json(tokens);
         } catch (e) {
@@ -125,7 +136,6 @@ class AuthController {
             const { password } = req.body;
 
             const doctor = await authService.recoveryPassword(token, password);
-
             res.status(StatusCodesEnum.OK).json(doctor);
         } catch (e) {
             next(e);

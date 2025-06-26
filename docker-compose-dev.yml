@@ -1,6 +1,6 @@
 services:
   db:
-    image: mongo
+    image: mongo:6.0
     ports:
       - "1234:27017"
     env_file:

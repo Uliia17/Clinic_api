@@ -1,11 +1,12 @@
 import { RoleEnum } from "../enums/role.enum";
 import { IBase } from "./base.interface";
+import { Types } from "mongoose";
 
 interface IToken extends IBase {
-    _id: string;
+    _id?: Types.ObjectId;
     accessToken: string;
     refreshToken: string;
-    _doctorId: string;
+    _doctorId: Types.ObjectId;
 }
 
 type ITokenModel = Pick<IToken, "accessToken" | "refreshToken" | "_doctorId">;

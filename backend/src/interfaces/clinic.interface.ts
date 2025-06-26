@@ -1,11 +1,14 @@
-import { IBase } from "./base.interface";
+import { Types } from "mongoose";
 
-interface IClinic extends IBase {
-    _id: string;
+interface IClinic {
+    _id?: Types.ObjectId;
     name: string;
-    doctors: string[];
+    doctors: Types.ObjectId[];
 }
 
-type IClinicDTO = Pick<IClinic, "name">;
+type IClinicDTO = {
+    name: string;
+    doctors: string[];
+};
 
-export { IClinic, IClinicDTO };
+export type { IClinic, IClinicDTO };

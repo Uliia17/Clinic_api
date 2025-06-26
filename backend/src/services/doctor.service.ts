@@ -8,6 +8,7 @@ import { doctorRepository } from "../repositories/doctor.repository";
 import { ApiError } from "../errors/api.error";
 import { StatusCodesEnum } from "../enums/status.codes.enum";
 import { IPaginatedResponse } from "../interfaces/paginated-response.interface";
+import { Types } from "mongoose";
 
 class DoctorService {
     public async getAll(
@@ -25,8 +26,16 @@ class DoctorService {
             data,
         };
     }
-    public create(doctor: IDoctorCreateDTO): Promise<IDoctor> {
-        return doctorRepository.create(doctor);
+
+    public async create(doctor: IDoctorCreateDTO): Promise<IDoctor> {
+        const clinics = doctor.clinics.map((id) => new Types.ObjectId(id));
+        const services = doctor.services.map((id) => new Types.ObjectId(id));
+
+        return await doctorRepository.create({
+            ...doctor,
+            clinics,
+            services,
+        });
     }
 
     public async getById(doctorId: string): Promise<IDoctor> {
@@ -44,16 +53,32 @@ class DoctorService {
         doctorId: string,
         doctor: IDoctorUpdateDTO,
     ): Promise<IDoctor> {
+        const updatedData: any = { ...doctor };
+
+        if (doctor.clinics) {
+            updatedData.clinics = doctor.clinics.map(
+                (id) => new Types.ObjectId(id),
+            );
+        }
+
+        if (doctor.services) {
+            updatedData.services = doctor.services.map(
+                (id) => new Types.ObjectId(id),
+            );
+        }
+
         const updatedDoctor = await doctorRepository.updateById(
             doctorId,
-            doctor,
+            updatedData,
         );
+
         if (!updatedDoctor) {
             throw new ApiError(
                 "Doctor is not found",
                 StatusCodesEnum.NOT_FOUND,
             );
         }
+
         return updatedDoctor;
     }
 
@@ -83,8 +108,8 @@ class DoctorService {
         return doctor.isActive;
     }
 
-    public async blockDoctor(doctor_id: string): Promise<IDoctor> {
-        const doctor = await doctorRepository.blockDoctor(doctor_id);
+    public async blockDoctor(doctorId: string): Promise<IDoctor> {
+        const doctor = await doctorRepository.blockDoctor(doctorId);
         if (!doctor) {
             throw new ApiError(
                 "Doctor is not found",
@@ -94,8 +119,8 @@ class DoctorService {
         return doctor;
     }
 
-    public async unblockDoctor(doctor_id: string): Promise<IDoctor> {
-        const doctor = await doctorRepository.unblockDoctor(doctor_id);
+    public async unblockDoctor(doctorId: string): Promise<IDoctor> {
+        const doctor = await doctorRepository.unblockDoctor(doctorId);
         if (!doctor) {
             throw new ApiError(
                 "Doctor is not found",
@@ -104,6 +129,7 @@ class DoctorService {
         }
         return doctor;
     }
+
     public getByEmail(email: string): Promise<IDoctor> {
         return doctorRepository.getByEmail(email);
     }

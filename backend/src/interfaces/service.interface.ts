@@ -1,7 +1,7 @@
-import { IBase } from "./base.interface";
+import { Types } from "mongoose";
 
-interface IService extends IBase {
-    _id: string;
+interface IService {
+    _id?: Types.ObjectId;
     name: string;
 }
 

@@ -5,7 +5,7 @@ import {
     IDoctorUpdateDTO,
 } from "../interfaces/doctor.interface";
 import { Doctor } from "../models/doctor.model";
-import { FilterQuery } from "mongoose";
+import { FilterQuery, Types } from "mongoose";
 
 class DoctorRepository {
     public async getAll(query: IDoctorQuery): Promise<any> {
@@ -44,7 +44,6 @@ class DoctorRepository {
         }
 
         const skip = (Number(page) - 1) * Number(pageSize);
-
         const totalItems = await Doctor.countDocuments(filterObject);
 
         const data = await Doctor.find(filterObject)
@@ -67,7 +66,7 @@ class DoctorRepository {
         return Doctor.create(doctor);
     }
 
-    public getById(doctorId: string): Promise<IDoctor | null> {
+    public getById(doctorId: string | Types.ObjectId): Promise<IDoctor | null> {
         return Doctor.findById(doctorId);
     }
 
@@ -76,7 +75,7 @@ class DoctorRepository {
     }
 
     public updateById(
-        doctorId: string,
+        doctorId: string | Types.ObjectId,
         doctor: IDoctorUpdateDTO,
     ): Promise<IDoctor | null> {
         return Doctor.findByIdAndUpdate(doctorId, doctor, { new: true });

@@ -1,13 +1,16 @@
 import { model, Schema } from "mongoose";
 
 import { IToken } from "../interfaces/token.interface";
-import { Doctor } from "./doctor.model";
 
 const tokenSchema = new Schema(
     {
         accessToken: { type: String, required: true },
         refreshToken: { type: String, required: true },
-        _doctorId: { type: Schema.Types.ObjectId, required: true, ref: Doctor },
+        _doctorId: {
+            type: Schema.Types.ObjectId,
+            ref: "Doctor",
+            required: true,
+        },
     },
     { timestamps: true, versionKey: false },
 );

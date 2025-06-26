@@ -1,9 +1,9 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, Types } from "mongoose";
 import { IDoctor } from "../interfaces/doctor.interface";
 import { RoleEnum } from "../enums/role.enum";
 import path from "node:path";
 
-const doctorSchema = new Schema(
+const doctorSchema = new Schema<IDoctor>(
     {
         name: { type: String, required: true },
         surname: { type: String, required: true },
@@ -11,8 +11,8 @@ const doctorSchema = new Schema(
         email: { type: String, required: true, unique: true },
         password: { type: String, required: true },
         avatar: { type: String, default: "" },
-        clinics: { type: [String], required: true },
-        services: { type: [String], required: true },
+        clinics: [{ type: Types.ObjectId, ref: "Clinic" }],
+        services: [{ type: Types.ObjectId, ref: "Service" }],
         role: {
             enum: RoleEnum,
             type: String,

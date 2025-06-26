@@ -3,13 +3,11 @@ import { Request, Response, NextFunction } from "express";
 import { doctorService } from "../services/doctor.service";
 
 import { ApiError } from "../errors/api.error";
-import {
-    IDoctorCreateDTO,
-    IDoctorUpdateDTO,
-} from "../interfaces/doctor.interface";
+import { IDoctorCreateDTO } from "../interfaces/doctor.interface";
 import { StatusCodesEnum } from "../enums/status.codes.enum";
 import { Doctor } from "../models/doctor.model";
 import { ITokenPayload } from "../interfaces/token.interface";
+import { Types } from "mongoose";
 
 class DoctorController {
     public async getAll(req: Request, res: Response, next: NextFunction) {
@@ -82,6 +80,14 @@ class DoctorController {
     public async create(req: Request, res: Response, next: NextFunction) {
         try {
             const doctor = req.body as IDoctorCreateDTO;
+
+            doctor.clinics = doctor.clinics.map(
+                (id: string | Types.ObjectId) => new Types.ObjectId(id),
+            );
+            doctor.services = doctor.services.map(
+                (id: string | Types.ObjectId) => new Types.ObjectId(id),
+            );
+
             const data = await doctorService.create(doctor);
             res.status(StatusCodesEnum.CREATED).json(data);
         } catch (e) {
@@ -95,11 +101,28 @@ class DoctorController {
         res.status(StatusCodesEnum.OK).json(data);
     }
 
-    public async updateById(req: Request, res: Response) {
-        const { id } = req.params;
-        const doctor = req.body as IDoctorUpdateDTO;
-        const data = await doctorService.updateById(id, doctor);
-        res.status(StatusCodesEnum.OK).json(data);
+    public async updateById(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params;
+            const doctor = req.body;
+
+            if (doctor.clinics) {
+                doctor.clinics = doctor.clinics.map(
+                    (id: string | Types.ObjectId) => new Types.ObjectId(id),
+                );
+            }
+
+            if (doctor.services) {
+                doctor.services = doctor.services.map(
+                    (id: string | Types.ObjectId) => new Types.ObjectId(id),
+                );
+            }
+
+            const data = await doctorService.updateById(id, doctor);
+            res.status(StatusCodesEnum.OK).json(data);
+        } catch (e) {
+            next(e);
+        }
     }
 
     public async deleteById(req: Request, res: Response) {

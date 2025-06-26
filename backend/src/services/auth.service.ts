@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { ApiError } from "../errors/api.error";
 import { ITokenPair } from "../interfaces/token.interface";
 import { tokenRepository } from "../repositories/token.repository";
@@ -17,40 +18,53 @@ import { emailConstants } from "../constants/email.constants";
 
 class AuthService {
     public async signUp(
-        doctor: IDoctorCreateDTO,
+        doctorDTO: IDoctorCreateDTO,
     ): Promise<{ doctor: IDoctor; tokens: ITokenPair }> {
-        if (doctor.role && doctor.role === RoleEnum.ADMIN) {
+        if (doctorDTO.role === RoleEnum.ADMIN) {
             throw new ApiError(
                 "Cannot register admin this way",
                 StatusCodesEnum.FORBIDDEN,
             );
         }
 
-        await doctorService.isEmailUnique(doctor.email);
+        await doctorService.isEmailUnique(doctorDTO.email);
 
-        const password = await passwordService.hashPassword(doctor.password);
+        const clinics = doctorDTO.clinics.map((id) => new Types.ObjectId(id));
+        const services = doctorDTO.services.map((id) => new Types.ObjectId(id));
+        const hashedPassword = await passwordService.hashPassword(
+            doctorDTO.password,
+        );
         const newDoctor = await doctorRepository.create({
-            ...doctor,
-            password,
+            ...doctorDTO,
+            password: hashedPassword,
+            clinics,
+            services,
         });
+
         const tokens = tokenService.generateTokens({
-            doctorId: newDoctor._id,
+            doctorId: newDoctor._id.toString(),
             role: newDoctor.role,
         });
-        await tokenRepository.create({ ...tokens, _doctorId: newDoctor._id });
-        const token = tokenService.generateActionToken(
+
+        await tokenRepository.create({
+            ...tokens,
+            _doctorId: newDoctor._id,
+        });
+
+        const actionToken = tokenService.generateActionToken(
             {
-                doctorId: newDoctor._id,
+                doctorId: newDoctor._id.toString(),
                 role: newDoctor.role,
             },
             ActionTokenTypeEnum.ACTIVATE,
         );
+
         await emailService.sendEmail(
             newDoctor.email,
             emailConstants[EmailEnum.ACTIVATE],
             {
                 name: newDoctor.name,
-                url: `${config.FRONTEND_URL}/activate/${token}`,
+                url: `${config.FRONTEND_URL}/activate/${actionToken}`,
             },
         );
 
@@ -69,17 +83,17 @@ class AuthService {
             );
         }
 
-        const isValidPassword = await passwordService.comparePassword(
-            dto.password,
-            doctor.password,
-        );
-
         if (!doctor.isActive) {
             throw new ApiError(
                 "Account is not active",
                 StatusCodesEnum.FORBIDDEN,
             );
         }
+
+        const isValidPassword = await passwordService.comparePassword(
+            dto.password,
+            doctor.password,
+        );
 
         if (!isValidPassword) {
             throw new ApiError(
@@ -89,39 +103,50 @@ class AuthService {
         }
 
         const tokens = tokenService.generateTokens({
-            doctorId: doctor._id,
+            doctorId: doctor._id.toString(),
             role: doctor.role,
         });
-        await tokenRepository.create({ ...tokens, _doctorId: doctor._id });
+
+        await tokenRepository.create({
+            ...tokens,
+            _doctorId: doctor._id,
+        });
+
         return { doctor, tokens };
     }
+
     public async activate(token: string): Promise<IDoctor> {
         const { doctorId } = tokenService.verifyToken(
             token,
             ActionTokenTypeEnum.ACTIVATE,
         );
+
         const doctor = await doctorService.updateById(doctorId, {
             isActive: true,
+            isVerified: true,
         });
+
         return doctor;
     }
+
     public async recoveryPasswordRequest(doctor: IDoctor): Promise<void> {
         const token = tokenService.generateActionToken(
             {
-                doctorId: doctor._id,
+                doctorId: doctor._id.toString(),
                 role: doctor.role,
             },
             ActionTokenTypeEnum.RECOVERY,
         );
+
         const url = `${config.FRONTEND_URL}/recovery/${token}`;
+
         await emailService.sendEmail(
             doctor.email,
             emailConstants[EmailEnum.RECOVERY],
-            {
-                url,
-            },
+            { url },
         );
     }
+
     public async recoveryPassword(
         token: string,
         password: string,
@@ -130,13 +155,19 @@ class AuthService {
             token,
             ActionTokenTypeEnum.RECOVERY,
         );
+
         const hashedPassword = await passwordService.hashPassword(password);
         const doctor = await doctorService.updateById(doctorId, {
             password: hashedPassword,
         });
+
         return doctor;
     }
-    public async registerAdmin(email: string, password: string) {
+
+    public async registerAdmin(
+        email: string,
+        password: string,
+    ): Promise<IDoctor> {
         const existing = await doctorRepository.getByEmail(email);
         if (existing) {
             throw new ApiError(
@@ -160,7 +191,7 @@ class AuthService {
 
         const token = tokenService.generateActionToken(
             {
-                doctorId: admin._id,
+                doctorId: admin._id.toString(),
                 role: admin.role,
             },
             ActionTokenTypeEnum.ACTIVATE,

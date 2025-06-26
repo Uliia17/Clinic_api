@@ -16,7 +16,7 @@ class ServiceService {
         for (const doc of doctors) {
             if (Array.isArray(doc.services)) {
                 for (const svc of doc.services) {
-                    doctorServicesSet.add(svc.toLowerCase());
+                    doctorServicesSet.add(svc.toString().toLowerCase());
                 }
             }
         }

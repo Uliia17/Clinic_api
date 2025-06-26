@@ -1,11 +1,14 @@
 FROM node:20-alpine
 
-MAINTAINER Some Dev
-
-RUN mkdir /app
-
 WORKDIR /app
 
-COPY ./backend/package.json .
+COPY ./backend/package.json ./backend/package-lock.json* ./
 
-RUN npm i
+RUN npm install
+
+COPY ./backend .
+
+EXPOSE 7000
+
+CMD ["npm", "start"]
+
