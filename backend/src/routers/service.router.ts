@@ -6,7 +6,11 @@ import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-router.get("/", serviceController.getServices.bind(serviceController));
+router.get(
+    "/",
+    commonMiddleware.query(ServiceValidator.query),
+    serviceController.getServices.bind(serviceController),
+);
 
 router.post(
     "/",

@@ -1,14 +1,21 @@
 import { Types } from "mongoose";
 
-interface IClinic {
+export interface IClinic {
     _id?: Types.ObjectId;
     name: string;
     doctors: Types.ObjectId[];
+    services: Types.ObjectId[];
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
-type IClinicDTO = {
+export interface IClinicDTO {
     name: string;
-    doctors: string[];
-};
+    doctors?: string[];
+    services?: string[];
+}
 
-export type { IClinic, IClinicDTO };
+export interface IClinicResponse extends IClinic {
+    doctorNames: string[];
+    serviceIds: string[];
+}

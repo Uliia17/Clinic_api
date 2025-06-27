@@ -1,84 +1,84 @@
-import { IClinic, IClinicDTO } from "../interfaces/clinic.interface";
 import { Clinic } from "../models/clinic.model";
 import { Doctor } from "../models/doctor.model";
 import { ApiError } from "../errors/api.error";
 import { StatusCodesEnum } from "../enums/status.codes.enum";
+import {
+    IClinic,
+    IClinicDTO,
+    IClinicResponse,
+} from "../interfaces/clinic.interface";
 
 class ClinicService {
-    public async searchClinics(query: { name?: string }): Promise<IClinic[]> {
+    public async searchClinics(query: {
+        name?: string;
+        doctorId?: string;
+        serviceId?: string;
+        order?: string;
+    }): Promise<IClinicResponse[]> {
         const nameFilter = query.name?.trim().toLowerCase() || "";
+        const doctorId = query.doctorId;
+        const serviceId = query.serviceId;
+        const order = query.order;
 
         const clinicsFromCollection = await Clinic.find().lean();
         const doctors = await Doctor.find({ isDeleted: false }).lean();
 
-        const clinicMap = new Map(
-            clinicsFromCollection.map((c) => [c._id.toString(), c]),
+        const filteredDoctors = doctors.filter((doc) => {
+            const matchDoctor = !doctorId || doc._id.toString() === doctorId;
+            const matchService =
+                !serviceId ||
+                doc.services.some((s) => s.toString() === serviceId);
+            return matchDoctor && matchService;
+        });
+
+        const clinicIds = new Set<string>();
+        for (const doc of filteredDoctors) {
+            doc.clinics.forEach((id) => clinicIds.add(id.toString()));
+        }
+
+        let resultClinics = clinicsFromCollection.filter(
+            (clinic) =>
+                clinicIds.has(clinic._id.toString()) &&
+                clinic.name.toLowerCase().includes(nameFilter),
         );
 
-        const clinicNamesFromDoctorsSet = new Set<string>();
+        const enrichedClinics: IClinicResponse[] = resultClinics.map(
+            (clinic) => {
+                const clinicDoctors = filteredDoctors.filter((doc) =>
+                    doc.clinics.some(
+                        (id) => id.toString() === clinic._id.toString(),
+                    ),
+                );
 
-        for (const doc of doctors) {
-            if (Array.isArray(doc.clinics)) {
-                for (const id of doc.clinics) {
-                    const idStr = id.toString();
-                    const clinic = clinicMap.get(idStr);
-                    if (
-                        clinic &&
-                        clinic.name.toLowerCase().includes(nameFilter)
-                    ) {
-                        clinicNamesFromDoctorsSet.add(clinic.name);
-                    }
+                const doctorNames = clinicDoctors.map(
+                    (doc) => `${doc.name} ${doc.surname}`,
+                );
+                const serviceSet = new Set<string>();
+                for (const doc of clinicDoctors) {
+                    doc.services.forEach((s) => serviceSet.add(s.toString()));
                 }
+
+                return {
+                    ...clinic,
+                    doctorNames,
+                    serviceIds: Array.from(serviceSet),
+                };
+            },
+        );
+
+        if (order) {
+            const direction = order.startsWith("-") ? -1 : 1;
+            const field = order.replace("-", "");
+            if (field === "name") {
+                enrichedClinics.sort((a, b) =>
+                    direction === 1
+                        ? a.name.localeCompare(b.name)
+                        : b.name.localeCompare(a.name),
+                );
             }
         }
 
-        const clinicNamesFromCollectionSet = new Set(
-            clinicsFromCollection.map((c) => c.name),
-        );
-
-        const clinicsOnlyFromDoctors = Array.from(
-            clinicNamesFromDoctorsSet,
-        ).filter((name) => !clinicNamesFromCollectionSet.has(name));
-
-        const clinicsFromDoctorsWithoutFullData = clinicsOnlyFromDoctors.map(
-            (name) => ({
-                _id: null,
-                name,
-                address: null,
-                phone: null,
-                doctors: [],
-                services: [],
-                createdAt: new Date(0),
-                updatedAt: new Date(0),
-            }),
-        );
-
-        const allClinics: any[] = [
-            ...clinicsFromCollection,
-            ...clinicsFromDoctorsWithoutFullData,
-        ];
-
-        for (const clinic of allClinics) {
-            const clinicDoctors = doctors.filter((doc) =>
-                doc.clinics.some(
-                    (id) => id.toString() === clinic._id?.toString(),
-                ),
-            );
-
-            clinic.doctors = clinicDoctors.map(
-                (doc) => `${doc.name} ${doc.surname}`,
-            );
-
-            const servicesSet = new Set<string>();
-            for (const doc of clinicDoctors) {
-                doc.services?.forEach((s) => servicesSet.add(s.toString()));
-            }
-            clinic.services = Array.from(servicesSet);
-        }
-
-        allClinics.sort((a, b) => a.name.localeCompare(b.name));
-
-        return allClinics;
+        return enrichedClinics;
     }
 
     public async create(clinic: IClinicDTO): Promise<IClinic> {

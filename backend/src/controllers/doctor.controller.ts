@@ -25,8 +25,14 @@ class DoctorController {
 
             const filter: any = {};
 
+            if (typeof phone === "string") {
+                if (/^\+380\d{9}$/.test(phone)) {
+                    filter.phone = phone;
+                }
+            }
+
             if (email) {
-                filter.email = new RegExp(`^${email}$`, "i"); // нечутливий до регістру пошук
+                filter.email = new RegExp(`^${email}$`, "i");
             }
 
             if (name) {
@@ -35,10 +41,6 @@ class DoctorController {
 
             if (surname) {
                 filter.surname = new RegExp(`^${surname}$`, "i");
-            }
-
-            if (phone) {
-                filter.phone = phone;
             }
 
             if (search) {
