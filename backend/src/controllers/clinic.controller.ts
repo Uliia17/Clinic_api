@@ -6,7 +6,16 @@ import { StatusCodesEnum } from "../enums/status.codes.enum";
 class ClinicController {
     public async search(req: Request, res: Response, next: NextFunction) {
         try {
-            const clinics = await clinicService.searchClinics(req.query);
+            const clinics = await clinicService.searchClinics(req.query as any);
+            res.status(StatusCodesEnum.OK).json(clinics);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    public async getAll(req: Request, res: Response, next: NextFunction) {
+        try {
+            const clinics = await clinicService.getAll();
             res.status(StatusCodesEnum.OK).json(clinics);
         } catch (e) {
             next(e);
@@ -15,9 +24,9 @@ class ClinicController {
 
     public async create(req: Request, res: Response, next: NextFunction) {
         try {
-            const clinic = req.body as IClinicDTO;
-            const data = await clinicService.create(clinic);
-            res.status(StatusCodesEnum.CREATED).json(data);
+            const clinicDto = req.body as IClinicDTO;
+            const created = await clinicService.create(clinicDto);
+            res.status(StatusCodesEnum.CREATED).json(created);
         } catch (e) {
             next(e);
         }
@@ -26,8 +35,8 @@ class ClinicController {
     public async getById(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
-            const data = await clinicService.getById(id);
-            res.status(StatusCodesEnum.OK).json(data);
+            const clinic = await clinicService.getById(id);
+            res.status(StatusCodesEnum.OK).json(clinic);
         } catch (e) {
             next(e);
         }
@@ -36,9 +45,9 @@ class ClinicController {
     public async updateById(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
-            const clinic = req.body as IClinicDTO;
-            const data = await clinicService.updateById(id, clinic);
-            res.status(StatusCodesEnum.OK).json(data);
+            const clinicDto = req.body as IClinicDTO;
+            const updated = await clinicService.updateById(id, clinicDto);
+            res.status(StatusCodesEnum.OK).json(updated);
         } catch (e) {
             next(e);
         }

@@ -26,13 +26,6 @@ class AuthController {
                 return;
             }
 
-            value.clinics = value.clinics.map(
-                (id: string) => new Types.ObjectId(id),
-            );
-            value.services = value.services.map(
-                (id: string) => new Types.ObjectId(id),
-            );
-
             const data = await authService.signUp(value);
             res.status(StatusCodesEnum.CREATED).json(data);
         } catch (e) {
@@ -115,7 +108,7 @@ class AuthController {
             const doctor = await doctorService.getByEmail(email);
 
             if (doctor) {
-                await authService.recoveryPasswordRequest(doctor);
+                await authService.passwordRecoveryRequest(doctor);
             }
 
             res.status(StatusCodesEnum.OK).json({

@@ -22,6 +22,7 @@ class TokenService {
             accessToken,
         };
     }
+
     public verifyToken(
         token: string,
         type: TokenTypeEnum | ActionTokenTypeEnum,
@@ -48,16 +49,16 @@ class TokenService {
 
                 default:
                     throw new ApiError(
-                        "Invalid token time",
+                        "Invalid token type",
                         StatusCodesEnum.BAD_REQUEST,
                     );
             }
             return jwt.verify(token, secret) as ITokenPayload;
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (e) {
+        } catch {
             throw new ApiError("Invalid token", StatusCodesEnum.UNAUTHORIZED);
         }
     }
+
     public generateActionToken(
         payload: ITokenPayload,
         type: ActionTokenTypeEnum,
@@ -75,19 +76,47 @@ class TokenService {
                 secret = config.JWT_RECOVERY_SECRET;
                 expiresIn = config.JWT_RECOVERY_LIFETIME;
                 break;
+
             default:
-                throw new ApiError("Invalid action token type", 400);
+                throw new ApiError(
+                    "Invalid action token type",
+                    StatusCodesEnum.BAD_REQUEST,
+                );
         }
         return jwt.sign(payload, secret, { expiresIn });
     }
+
+    /**
+     * Перевіряє чи існує access/refresh токен у БД.
+     * Повертає boolean замість кидання, якщо не знайдено.
+     */
     public async isTokenExists(
         token: string,
         type: TokenTypeEnum,
     ): Promise<boolean> {
-        const iTokenPromise = await tokenRepository.findByParams({
-            [type]: token,
-        });
-        return !!iTokenPromise;
+        try {
+            await tokenRepository.findByParams({ [type]: token });
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    /**
+     * Валідує action token заданого типу (ACTIVATE | RECOVERY) та повертає payload.
+     */
+    public validateActionToken(
+        token: string,
+        type: ActionTokenTypeEnum,
+    ): ITokenPayload {
+        try {
+            return this.verifyToken(token, type);
+        } catch {
+            throw new ApiError(
+                "Invalid action token",
+                StatusCodesEnum.UNAUTHORIZED,
+            );
+        }
     }
 }
 

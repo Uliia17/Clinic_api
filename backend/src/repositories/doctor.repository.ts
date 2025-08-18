@@ -1,104 +1,156 @@
+// src/repositories/doctor.repository.ts
+import { FilterQuery, Types } from "mongoose";
+import { Doctor } from "../models/doctor.model";
 import {
     IDoctor,
     IDoctorCreateDTO,
-    IDoctorQuery,
     IDoctorUpdateDTO,
+    IDoctorQuery,
 } from "../interfaces/doctor.interface";
-import { Doctor } from "../models/doctor.model";
-import { FilterQuery, Types } from "mongoose";
+import { IPaginatedResponse } from "../interfaces/paginated-response.interface";
 
-class DoctorRepository {
-    public async getAll(query: IDoctorQuery): Promise<any> {
-        const {
-            name,
-            surname,
-            phone,
-            email,
-            order,
-            pageSize = 10,
-            page = 1,
-        } = query;
+export class DoctorRepository {
+    public async create(dto: IDoctorCreateDTO): Promise<IDoctor> {
+        const created = await Doctor.create(dto as any);
+        // повернути plain object/lean-like результат
+        return (created.toObject ? created.toObject() : created) as IDoctor;
+    }
 
-        const filterObject: FilterQuery<IDoctor> = { isDeleted: false };
+    public async findAll(
+        query: IDoctorQuery,
+    ): Promise<IPaginatedResponse<IDoctor>> {
+        const { page = 1, pageSize = 10, order, search } = query;
+        const filter: FilterQuery<IDoctor> = { isDeleted: false } as any;
 
-        if (name) {
-            filterObject.name = { $regex: name, $options: "i" };
-        }
-        if (surname) {
-            filterObject.surname = { $regex: surname, $options: "i" };
-        }
-        if (phone) {
-            filterObject.phone = { $regex: phone, $options: "i" };
-        }
-        if (email) {
-            filterObject.email = { $regex: email, $options: "i" };
+        // прості фільтри (якщо в IDoctorQuery є інші поля — можна додати)
+        if ((query as any).name)
+            filter.name = { $regex: (query as any).name, $options: "i" } as any;
+        if ((query as any).surname)
+            filter.surname = {
+                $regex: (query as any).surname,
+                $options: "i",
+            } as any;
+        if ((query as any).email)
+            filter.email = {
+                $regex: (query as any).email,
+                $options: "i",
+            } as any;
+        if ((query as any).phone)
+            filter.phone = {
+                $regex: (query as any).phone,
+                $options: "i",
+            } as any;
+        if (typeof (query as any).isActive === "boolean")
+            (filter as any).isActive = (query as any).isActive;
+        if (typeof (query as any).isVerified === "boolean")
+            (filter as any).isVerified = (query as any).isVerified;
+
+        // використовуємо деструктуровану змінну search (щоб уникнути TS6133)
+        if (search && String(search).trim() !== "") {
+            const s = String(search).trim();
+            filter.$or = [
+                { name: { $regex: s, $options: "i" } },
+                { surname: { $regex: s, $options: "i" } },
+                { email: { $regex: s, $options: "i" } },
+                { phone: { $regex: s, $options: "i" } },
+            ] as any;
         }
 
-        const sortObject: Record<string, 1 | -1> = {};
+        // сортування
+        const sort: Record<string, 1 | -1> = {};
         if (order) {
-            if (order.startsWith("-")) {
-                sortObject[order.slice(1)] = -1;
-            } else {
-                sortObject[order] = 1;
-            }
+            const dir = order.startsWith("-") ? -1 : 1;
+            const field = order.replace(/^-/, "");
+            sort[field] = dir;
+        } else {
+            sort["createdAt"] = -1;
         }
 
-        const skip = (Number(page) - 1) * Number(pageSize);
-        const totalItems = await Doctor.countDocuments(filterObject);
-
-        const data = await Doctor.find(filterObject)
-            .sort(sortObject)
+        const skip = (page - 1) * pageSize;
+        const totalItems = await Doctor.countDocuments(filter);
+        const docs = await Doctor.find(filter)
+            .sort(sort)
             .skip(skip)
-            .limit(Number(pageSize));
+            .limit(pageSize)
+            .lean<IDoctor[]>()
+            .exec();
 
-        const totalPages = Math.ceil(totalItems / Number(pageSize));
+        const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
-        return {
+        const result: IPaginatedResponse<IDoctor> = {
+            data: docs,
             totalItems,
             totalPages,
             prevPage: page > 1,
             nextPage: page < totalPages,
-            data,
+            page,
+            pageSize,
         };
+
+        return result;
     }
 
-    public create(doctor: IDoctorCreateDTO): Promise<IDoctor> {
-        return Doctor.create(doctor);
+    public async getById(id: string): Promise<IDoctor | null> {
+        if (!Types.ObjectId.isValid(id)) return null;
+        return await Doctor.findById(new Types.ObjectId(id))
+            .lean<IDoctor>()
+            .exec();
     }
 
-    public getById(doctorId: string | Types.ObjectId): Promise<IDoctor | null> {
-        return Doctor.findById(doctorId);
+    public async findByIds(
+        ids: string[] | Types.ObjectId[],
+    ): Promise<IDoctor[]> {
+        const objectIds = (ids || [])
+            .map((id) => {
+                const s = String(id);
+                return Types.ObjectId.isValid(s) ? new Types.ObjectId(s) : null;
+            })
+            .filter((x): x is Types.ObjectId => x !== null);
+
+        if (objectIds.length === 0) return [];
+
+        return await Doctor.find({ _id: { $in: objectIds } })
+            .populate("clinics")
+            .populate("services")
+            .lean<IDoctor[]>()
+            .exec();
     }
 
-    public getByEmail(email: string): Promise<IDoctor | null> {
-        return Doctor.findOne({ email });
+    public async findByEmail(email: string): Promise<IDoctor | null> {
+        return await Doctor.findOne({ email }).lean<IDoctor>().exec();
     }
 
-    public updateById(
-        doctorId: string | Types.ObjectId,
-        doctor: IDoctorUpdateDTO,
+    public async updateById(
+        id: string,
+        dto: IDoctorUpdateDTO,
     ): Promise<IDoctor | null> {
-        return Doctor.findByIdAndUpdate(doctorId, doctor, { new: true });
+        if (!Types.ObjectId.isValid(id)) return null;
+        return await Doctor.findByIdAndUpdate(new Types.ObjectId(id), dto, {
+            new: true,
+        })
+            .lean<IDoctor>()
+            .exec();
     }
 
-    public deleteById(doctorId: string): Promise<IDoctor | null> {
-        return Doctor.findByIdAndDelete(doctorId);
+    public async deleteById(id: string): Promise<IDoctor | null> {
+        if (!Types.ObjectId.isValid(id)) return null;
+        return await Doctor.findByIdAndDelete(new Types.ObjectId(id))
+            .lean<IDoctor>()
+            .exec();
     }
 
-    public blockDoctor(doctorId: string): Promise<IDoctor | null> {
-        return Doctor.findByIdAndUpdate(
-            doctorId,
-            { isActive: false },
+    public async setActiveStatus(
+        id: string,
+        isActive: boolean,
+    ): Promise<IDoctor | null> {
+        if (!Types.ObjectId.isValid(id)) return null;
+        return await Doctor.findByIdAndUpdate(
+            new Types.ObjectId(id),
+            { isActive },
             { new: true },
-        );
-    }
-
-    public unblockDoctor(doctorId: string): Promise<IDoctor | null> {
-        return Doctor.findByIdAndUpdate(
-            doctorId,
-            { isActive: true },
-            { new: true },
-        );
+        )
+            .lean<IDoctor>()
+            .exec();
     }
 }
 

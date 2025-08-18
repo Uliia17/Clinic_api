@@ -7,25 +7,20 @@ import { upload } from "../configs/multer.config";
 
 const router = Router();
 
+// Валідація query-параметрів через Joi
 router.get(
     "/",
     commonMiddleware.query(DoctorValidator.query),
-    doctorController.getAll,
+    doctorController.getAll.bind(doctorController),
 );
 
+// Створення лікаря
 router.post(
     "/",
     authMiddleware.checkAccessToken,
     authMiddleware.isAdmin,
     commonMiddleware.validateBody(DoctorValidator.create),
-    doctorController.create,
-);
-
-router.get(
-    "/:id",
-    authMiddleware.checkAccessToken,
-    commonMiddleware.isIdValidate("id"),
-    doctorController.getById,
+    doctorController.create.bind(doctorController),
 );
 
 router.put(

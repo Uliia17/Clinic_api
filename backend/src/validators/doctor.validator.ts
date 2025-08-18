@@ -1,63 +1,75 @@
-import joi from "joi";
+// src/validators/doctor.validator.ts
+import Joi from "joi";
+import { Types } from "mongoose";
 import { QueryOrderEnumDoctors } from "../enums/query-order.enum";
+import { RoleEnum } from "../enums/role.enum";
 
-export class DoctorValidator {
-    private static nameSchema = joi.string().regex(/^[A-Z][a-z]{1,14}$/);
-    private static surname = joi.string().regex(/^[A-Z][a-z]{1,14}$/);
-    private static phone = joi.string().pattern(/^\+380\d{9}$/);
-    private static email = joi.string().email({ tlds: { allow: false } });
-    private static password = joi.string().min(6).required();
-    private static objectId = joi.string().regex(/^[a-f\d]{24}$/i);
-    private static clinics = joi
-        .array()
-        .items(joi.alternatives(this.objectId, joi.string()))
-        .required();
+/**
+ * Альтернатива: або валідний ObjectId, або непорожній рядок (ім'я)
+ */
+const objectIdOrName = Joi.alternatives().try(
+    Joi.string().custom((value, helpers) => {
+        // allow both ObjectId strings and throw otherwise here (this branch only for ObjectId)
+        if (Types.ObjectId.isValid(value)) return value;
+        return helpers.error("any.invalid");
+    }, "ObjectId validation"),
+    Joi.string().min(1), // або проста назва (наприклад "Odrex")
+);
 
-    private static services = joi
-        .array()
-        .items(joi.alternatives(this.objectId, joi.string()))
-        .required();
+/**
+ * Звичайні схеми для полів (збережені твої патерни, але з Joi)
+ */
+const nameSchema = Joi.string().pattern(/^[A-Z][a-z]{1,14}$/);
+const surnameSchema = Joi.string().pattern(/^[A-Z][a-z]{1,14}$/);
+const phoneSchema = Joi.string().pattern(/^\+380\d{9}$/);
+const emailSchema = Joi.string().email({ tlds: { allow: false } });
+const passwordSchema = Joi.string().min(6);
 
-    public static create = joi.object({
-        name: this.nameSchema.required(),
-        surname: this.surname.required(),
-        phone: this.phone.required(),
-        email: this.email.required(),
-        password: this.password.required(),
-        clinics: this.clinics.required(),
-        services: this.services.required(),
-    });
+export const DoctorValidator = {
+    create: Joi.object({
+        name: nameSchema.required(),
+        surname: surnameSchema.required(),
+        phone: phoneSchema.required(),
+        email: emailSchema.required(),
+        password: passwordSchema.required(),
+        /**
+         * Тепер clinics/services приймають або ObjectId або назву (string)
+         * Наприклад: ["689a...","Odrex"]
+         */
+        clinics: Joi.array().items(objectIdOrName).min(1).required(),
+        services: Joi.array().items(objectIdOrName).min(1).required(),
+        role: Joi.string()
+            .valid(...Object.values(RoleEnum))
+            .optional(),
+        avatar: Joi.string().uri().optional(),
+    }),
 
-    public static update = joi.object({
-        name: this.nameSchema.optional(),
-        surname: this.surname.optional(),
-        phone: this.phone.optional(),
-        email: this.email.optional(),
-        password: this.password.optional(),
-        avatar: joi.string().uri().optional(),
-        clinics: joi.array().items(this.objectId).optional(),
-        services: joi.array().items(this.objectId).optional(),
-        isVerified: joi.boolean().optional(),
-        isActive: joi.boolean().optional(),
-    });
+    update: Joi.object({
+        name: nameSchema.optional(),
+        surname: surnameSchema.optional(),
+        phone: phoneSchema.optional(),
+        email: emailSchema.optional(),
+        password: passwordSchema.optional(),
+        clinics: Joi.array().items(objectIdOrName).optional(),
+        services: Joi.array().items(objectIdOrName).optional(),
+        avatar: Joi.string().uri().optional(),
+        isVerified: Joi.boolean().optional(),
+        isActive: Joi.boolean().optional(),
+    }),
 
-    public static query = joi.object({
-        pageSize: joi.number().min(1).max(100).default(10),
-        page: joi.number().min(1).default(1),
-        search: joi.string().trim(),
-        order: joi
-            .string()
+    query: Joi.object({
+        page: Joi.number().min(1).default(1),
+        pageSize: Joi.number().min(1).max(100).default(10),
+        search: Joi.string().trim().optional(),
+        order: Joi.string()
             .valid(
-                ...[
-                    ...Object.values(QueryOrderEnumDoctors),
-                    ...Object.values(QueryOrderEnumDoctors).map(
-                        (item) => `-${item}`,
-                    ),
-                ],
-            ),
-        name: this.nameSchema.optional(),
-        surname: this.surname.optional(),
-        phone: this.phone.optional(),
-        email: this.email.optional(),
-    });
-}
+                ...Object.values(QueryOrderEnumDoctors),
+                ...Object.values(QueryOrderEnumDoctors).map((f) => `-${f}`),
+            )
+            .optional(),
+        name: nameSchema.optional(),
+        surname: surnameSchema.optional(),
+        phone: phoneSchema.optional(),
+        email: emailSchema.optional(),
+    }),
+};

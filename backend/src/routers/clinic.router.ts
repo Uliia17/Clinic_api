@@ -8,6 +8,13 @@ const router = Router();
 
 router.get("/", clinicController.search.bind(clinicController));
 
+router.get(
+    "/all",
+    authMiddleware.checkAccessToken,
+    authMiddleware.isAdmin,
+    clinicController.getAll.bind(clinicController),
+);
+
 router.post(
     "/",
     authMiddleware.checkAccessToken,

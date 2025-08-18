@@ -1,7 +1,9 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, Document } from "mongoose";
 import { IService } from "../interfaces/service.interface";
 
-const serviceSchema = new Schema<IService>(
+export type ServiceDocument = IService & Document;
+
+const serviceSchema = new Schema<ServiceDocument>(
     {
         name: { type: String, required: true, unique: true },
     },
@@ -11,4 +13,6 @@ const serviceSchema = new Schema<IService>(
     },
 );
 
-export const Service = model<IService>("Service", serviceSchema);
+serviceSchema.index({ name: "text" });
+
+export const Service = model<ServiceDocument>("Service", serviceSchema);

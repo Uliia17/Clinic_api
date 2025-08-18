@@ -4,19 +4,19 @@ import { QueryOrderEnumServices } from "../enums/query-order.enum";
 const nameSchema = joi
     .string()
     .pattern(/^[А-ЯA-ZІЇЄҐ][А-ЯA-Za-zа-яіїєґ0-9\s’" -]{1,50}$/)
-    .required();
+    .optional();
 
 export class ServiceValidator {
     public static create = joi.object({
-        name: nameSchema,
+        name: joi.string().trim().required(),
     });
 
     public static update = joi.object({
-        name: nameSchema,
+        name: joi.string().trim().required(),
     });
 
     public static query = joi.object({
-        name: joi.string().trim().optional(),
+        name: nameSchema,
         order: joi
             .string()
             .valid(
@@ -24,5 +24,7 @@ export class ServiceValidator {
                 ...Object.values(QueryOrderEnumServices).map((v) => `-${v}`),
             )
             .optional(),
+        page: joi.number().min(1).default(1),
+        pageSize: joi.number().min(1).max(100).default(10),
     });
 }

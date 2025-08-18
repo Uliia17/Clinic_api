@@ -1,199 +1,141 @@
 import { Request, Response, NextFunction } from "express";
-
 import { doctorService } from "../services/doctor.service";
-
-import { ApiError } from "../errors/api.error";
-import { IDoctorCreateDTO } from "../interfaces/doctor.interface";
+import {
+    IDoctorCreateDTO,
+    IDoctorUpdateDTO,
+    IDoctorQuery,
+} from "../interfaces/doctor.interface";
 import { StatusCodesEnum } from "../enums/status.codes.enum";
-import { Doctor } from "../models/doctor.model";
+import { ApiError } from "../errors/api.error";
 import { ITokenPayload } from "../interfaces/token.interface";
-import { Types } from "mongoose";
 
 class DoctorController {
+    /**
+     * Пагінований список лікарів з фільтрацією та пошуком
+     */
     public async getAll(req: Request, res: Response, next: NextFunction) {
         try {
-            const {
-                page = 1,
-                pageSize = 10,
-                email,
-                name,
-                surname,
-                phone,
-                search,
-                order,
-            } = req.query;
-
-            const filter: any = {};
-
-            if (typeof phone === "string") {
-                if (/^\+380\d{9}$/.test(phone)) {
-                    filter.phone = phone;
-                }
-            }
-
-            if (email) {
-                filter.email = new RegExp(`^${email}$`, "i");
-            }
-
-            if (name) {
-                filter.name = new RegExp(`^${name}$`, "i");
-            }
-
-            if (surname) {
-                filter.surname = new RegExp(`^${surname}$`, "i");
-            }
-
-            if (search) {
-                filter.$or = [
-                    { name: new RegExp(search as string, "i") },
-                    { surname: new RegExp(search as string, "i") },
-                    { email: new RegExp(search as string, "i") },
-                ];
-            }
-
-            let sort: any = {};
-            if (order) {
-                const direction = (order as string).startsWith("-") ? -1 : 1;
-                const field = (order as string).replace("-", "");
-                sort[field] = direction;
-            }
-
-            const skip = (Number(page) - 1) * Number(pageSize);
-            const limit = Number(pageSize);
-
-            const totalItems = await Doctor.countDocuments(filter);
-            const data = await Doctor.find(filter)
-                .sort(sort)
-                .skip(skip)
-                .limit(limit);
-
-            res.json({
-                totalItems,
-                totalPages: Math.ceil(totalItems / limit),
-                prevPage: Number(page) > 1,
-                nextPage: Number(page) < Math.ceil(totalItems / limit),
-                data,
-            });
-        } catch (error) {
-            next(error);
+            const query = req.query as unknown as IDoctorQuery;
+            const result = await doctorService.getAll(query);
+            res.status(StatusCodesEnum.OK).json(result);
+        } catch (err) {
+            next(err);
         }
     }
 
+    /**
+     * Створення лікаря
+     */
     public async create(req: Request, res: Response, next: NextFunction) {
         try {
-            const doctor = req.body as IDoctorCreateDTO;
-
-            doctor.clinics = doctor.clinics.map(
-                (id: string | Types.ObjectId) => new Types.ObjectId(id),
-            );
-            doctor.services = doctor.services.map(
-                (id: string | Types.ObjectId) => new Types.ObjectId(id),
-            );
-
-            const data = await doctorService.create(doctor);
-            res.status(StatusCodesEnum.CREATED).json(data);
-        } catch (e) {
-            next(e);
+            const dto = req.body as IDoctorCreateDTO;
+            const doctor = await doctorService.create(dto);
+            res.status(StatusCodesEnum.CREATED).json(doctor);
+        } catch (err) {
+            next(err);
         }
     }
 
-    public async getById(req: Request, res: Response) {
-        const { id } = req.params;
-        const data = await doctorService.getById(id);
-        res.status(StatusCodesEnum.OK).json(data);
+    /**
+     * Отримати лікаря за ID
+     */
+    public async getById(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params;
+            const doctor = await doctorService.getById(id);
+            res.status(StatusCodesEnum.OK).json(doctor);
+        } catch (err) {
+            next(err);
+        }
     }
 
+    /**
+     * Оновлення лікаря за ID
+     */
     public async updateById(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
-            const doctor = req.body;
-
-            if (doctor.clinics) {
-                doctor.clinics = doctor.clinics.map(
-                    (id: string | Types.ObjectId) => new Types.ObjectId(id),
-                );
-            }
-
-            if (doctor.services) {
-                doctor.services = doctor.services.map(
-                    (id: string | Types.ObjectId) => new Types.ObjectId(id),
-                );
-            }
-
-            const data = await doctorService.updateById(id, doctor);
-            res.status(StatusCodesEnum.OK).json(data);
-        } catch (e) {
-            next(e);
+            const dto = req.body as IDoctorUpdateDTO;
+            const updated = await doctorService.updateById(id, dto);
+            res.status(StatusCodesEnum.OK).json(updated);
+        } catch (err) {
+            next(err);
         }
     }
 
-    public async deleteById(req: Request, res: Response) {
-        const { id } = req.params;
-        await doctorService.deleteById(id);
-        res.status(StatusCodesEnum.NO_CONTENT).end();
+    /**
+     * Видалення лікаря за ID
+     */
+    public async deleteById(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params;
+            await doctorService.deleteById(id);
+            res.status(StatusCodesEnum.NO_CONTENT).end();
+        } catch (err) {
+            next(err);
+        }
     }
 
+    /**
+     * Блокувати лікаря (не себе!)
+     */
     public async blockDoctor(req: Request, res: Response, next: NextFunction) {
         try {
-            const { id: doctorId } = req.params;
-            const { doctorId: myId } = res.locals.tokenPayload as ITokenPayload;
-
-            if (doctorId === myId) {
-                throw new ApiError("Not permitted", StatusCodesEnum.FORBIDDEN);
+            const { id } = req.params;
+            const token = res.locals.tokenPayload as ITokenPayload;
+            if (token.doctorId === id) {
+                throw new ApiError(
+                    "Cannot block yourself",
+                    StatusCodesEnum.FORBIDDEN,
+                );
             }
-
-            const data = await doctorService.blockDoctor(doctorId);
-            res.status(StatusCodesEnum.OK).json(data);
-        } catch (e) {
-            next(e);
+            const blocked = await doctorService.blockDoctor(id);
+            res.status(StatusCodesEnum.OK).json(blocked);
+        } catch (err) {
+            next(err);
         }
     }
 
+    /**
+     * Розблокувати лікаря
+     */
     public async unblockDoctor(
         req: Request,
         res: Response,
         next: NextFunction,
     ) {
         try {
-            const { id: doctorId } = req.params;
-            const { doctorId: myId } = res.locals.tokenPayload as ITokenPayload;
-
-            if (doctorId === myId) {
-                throw new ApiError("Not permitted", StatusCodesEnum.FORBIDDEN);
+            const { id } = req.params;
+            const token = res.locals.tokenPayload as ITokenPayload;
+            if (token.doctorId === id) {
+                throw new ApiError(
+                    "Cannot unblock yourself",
+                    StatusCodesEnum.FORBIDDEN,
+                );
             }
-
-            const data = await doctorService.unblockDoctor(doctorId);
-            res.status(StatusCodesEnum.OK).json(data);
-        } catch (e) {
-            next(e);
+            const unblocked = await doctorService.unblockDoctor(id);
+            res.status(StatusCodesEnum.OK).json(unblocked);
+        } catch (err) {
+            next(err);
         }
     }
 
+    /**
+     * Оновити аватар
+     */
     public async uploadAvatar(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
-            const doctor = await doctorService.getById(id);
-
-            if (!doctor) {
-                throw new ApiError(
-                    "Doctor not found",
-                    StatusCodesEnum.BAD_REQUEST,
-                );
-            }
-
             if (!req.file) {
                 throw new ApiError(
-                    "No file uploaded",
+                    "File is required",
                     StatusCodesEnum.BAD_REQUEST,
                 );
             }
-
-            const data = await doctorService.updateById(id, {
-                avatar: req.file.path,
-            });
-            res.status(StatusCodesEnum.OK).json(data);
-        } catch (e) {
-            next(e);
+            const updated = await doctorService.updateAvatar(id, req.file.path);
+            res.status(StatusCodesEnum.OK).json(updated);
+        } catch (err) {
+            next(err);
         }
     }
 }

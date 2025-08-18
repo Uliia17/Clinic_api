@@ -1,108 +1,137 @@
 import { ApiError } from "../errors/api.error";
 import { serviceRepository } from "../repositories/service.repository";
 import { StatusCodesEnum } from "../enums/status.codes.enum";
-import { IService, IServiceDTO } from "../interfaces/service.interface";
-import { Doctor } from "../models/doctor.model";
-
-interface IServiceQuery {
-    name?: string;
-    order?: string;
-}
+import {
+    IServiceDTO,
+    IServiceQuery,
+    IServiceResponse,
+    IService,
+} from "../interfaces/service.interface";
+import { Types } from "mongoose";
+import { IPaginatedResponse } from "../interfaces/paginated-response.interface";
 
 export class ServiceService {
-    public async getServices(query: IServiceQuery): Promise<IService[]> {
-        const nameFilter = query.name?.trim().toLowerCase() || "";
-        const rawOrder = query.order || "name";
+    public async getServices(
+        query: IServiceQuery,
+    ): Promise<IPaginatedResponse<IServiceResponse>> {
+        const paginated = await serviceRepository.search(query);
 
-        const isDescending = rawOrder.startsWith("-");
-        const sortField = rawOrder.replace("-", "").toLowerCase();
+        const data = (paginated.data || []).map((svc: IService) =>
+            this.toResponse(svc),
+        );
 
-        let standalone = await serviceRepository.getAllStandalone();
-        const doctors = await Doctor.find({ isDeleted: false }).lean();
-
-        const doctorSet = new Set<string>();
-        for (const doc of doctors) {
-            for (const svc of doc.services || []) {
-                doctorSet.add(svc.toString().toLowerCase());
-            }
-        }
-
-        const map = new Map<string, IService>();
-        for (const svc of standalone) {
-            map.set(svc.name.toLowerCase(), svc);
-        }
-        for (const name of doctorSet) {
-            if (!map.has(name)) {
-                map.set(name, {
-                    _id: null,
-                    name,
-                    createdAt: new Date(0),
-                    updatedAt: new Date(0),
-                } as IService);
-            }
-        }
-
-        let arr = Array.from(map.values());
-
-        if (nameFilter) {
-            arr = arr.filter((s) => s.name.toLowerCase().includes(nameFilter));
-        }
-
-        arr.sort((a, b) => {
-            const aVal = (a as any)[sortField];
-            const bVal = (b as any)[sortField];
-
-            if (typeof aVal === "string" && typeof bVal === "string") {
-                return isDescending
-                    ? bVal.localeCompare(aVal)
-                    : aVal.localeCompare(bVal);
-            }
-
-            if (aVal instanceof Date && bVal instanceof Date) {
-                return isDescending
-                    ? bVal.getTime() - aVal.getTime()
-                    : aVal.getTime() - bVal.getTime();
-            }
-
-            return 0;
-        });
-
-        return arr;
+        return {
+            ...paginated,
+            data,
+        };
     }
 
-    public async create(service: IServiceDTO): Promise<IService> {
-        return await serviceRepository.create(service);
+    public async create(service: IServiceDTO): Promise<IServiceResponse> {
+        const existing = await serviceRepository.findByName(service.name);
+        if (existing) {
+            throw new ApiError(
+                "Service with this name already exists",
+                StatusCodesEnum.CONFLICT,
+            );
+        }
+
+        const created: IService = await serviceRepository.create(service);
+        return this.toResponse(created);
     }
 
-    public async getById(serviceId: string): Promise<IService> {
-        const svc = await serviceRepository.getById(serviceId);
-        if (!svc) {
+    public async getById(id: string): Promise<IServiceResponse> {
+        const svc = await serviceRepository.getById(id);
+        if (!svc)
             throw new ApiError("Service not found", StatusCodesEnum.NOT_FOUND);
-        }
-        return svc;
+        return this.toResponse(svc);
+    }
+
+    // public async getByIds(ids: string[]): Promise<IServiceResponse[]> {
+    //     const objectIds = ids
+    //         .filter((id) => Types.ObjectId.isValid(id))
+    //         .map((id) => new Types.ObjectId(id));
+    //     if (objectIds.length === 0) return [];
+    //
+    //     const services = await serviceRepository.findByIds(objectIds);
+    //     return services.map((s) => this.toResponse(s));
+    // }
+    // всередині ServiceService класу (додай цей метод)
+    public async getByIds(ids: string[]): Promise<IServiceResponse[]> {
+        if (!ids || ids.length === 0) return [];
+
+        const objectIds = ids
+            .filter((id) => Types.ObjectId.isValid(id))
+            .map((id) => new Types.ObjectId(id));
+        if (objectIds.length === 0) return [];
+
+        // Припускаємо, що serviceRepository.findByIds приймає Types.ObjectId[] та повертає IService[]
+        const services = await serviceRepository.findByIds(objectIds);
+
+        return services.map((svc) => ({
+            _id: svc._id.toString(),
+            name: svc.name,
+            createdAt: svc.createdAt ? svc.createdAt.toISOString() : undefined,
+            updatedAt: svc.updatedAt ? svc.updatedAt.toISOString() : undefined,
+        }));
     }
 
     public async updateById(
-        serviceId: string,
+        id: string,
         service: IServiceDTO,
-    ): Promise<IService> {
-        const existing = await serviceRepository.getById(serviceId);
-        if (!existing) {
+    ): Promise<IServiceResponse> {
+        const existing = await serviceRepository.getById(id);
+        if (!existing)
             throw new ApiError("Service not found", StatusCodesEnum.NOT_FOUND);
+
+        const duplicate = await service_repository_findByName_safe(
+            service.name,
+        );
+        if (duplicate && duplicate._id.toString() !== id) {
+            throw new ApiError(
+                "Another service with this name already exists",
+                StatusCodesEnum.CONFLICT,
+            );
         }
-        return (await serviceRepository.updateById(
-            serviceId,
-            service,
-        )) as IService;
+
+        const updated = await serviceRepository.updateById(id, service);
+        if (!updated)
+            throw new ApiError(
+                "Failed to update service",
+                StatusCodesEnum.INTERNAL_SERVER_ERROR,
+            );
+
+        return this.toResponse(updated);
     }
 
-    public async deleteById(serviceId: string): Promise<void> {
-        const existing = await serviceRepository.getById(serviceId);
-        if (!existing) {
+    public async deleteById(id: string): Promise<void> {
+        const existing = await serviceRepository.getById(id);
+        if (!existing)
             throw new ApiError("Service not found", StatusCodesEnum.NOT_FOUND);
-        }
-        await serviceRepository.deleteById(serviceId);
+
+        const deleted = await serviceRepository.deleteById(id);
+        if (!deleted)
+            throw new ApiError(
+                "Failed to delete service",
+                StatusCodesEnum.INTERNAL_SERVER_ERROR,
+            );
+    }
+
+    private toResponse(svc: IService): IServiceResponse {
+        return {
+            _id: svc._id.toString(),
+            name: svc.name,
+            createdAt: svc.createdAt
+                ? svc.createdAt.toISOString()
+                : new Date().toISOString(),
+            updatedAt: svc.updatedAt
+                ? svc.updatedAt.toISOString()
+                : new Date().toISOString(),
+        };
     }
 }
 
 export const serviceService = new ServiceService();
+
+async function service_repository_findByName_safe(name: string) {
+    return await serviceRepository.findByName(name);
+}

@@ -1,10 +1,28 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model, Document, Types } from "mongoose";
 import { IClinic } from "../interfaces/clinic.interface";
 
-const clinicSchema = new Schema<IClinic>(
+// Тип документа для Mongoose
+export type ClinicDocument = IClinic & Document;
+
+const clinicSchema = new Schema<ClinicDocument>(
     {
-        name: { type: String, required: true, unique: true },
-        doctors: [{ type: Types.ObjectId, ref: "Doctor" }],
+        name: { type: String, required: true, unique: true, index: true },
+        doctors: [
+            {
+                type: Types.ObjectId,
+                ref: "Doctor",
+                required: false,
+                index: true,
+            },
+        ],
+        services: [
+            {
+                type: Types.ObjectId,
+                ref: "Service",
+                required: false,
+                index: true,
+            },
+        ],
     },
     {
         timestamps: true,
@@ -12,4 +30,6 @@ const clinicSchema = new Schema<IClinic>(
     },
 );
 
-export const Clinic = model<IClinic>("Clinic", clinicSchema);
+clinicSchema.index({ name: "text" });
+
+export const Clinic = model<ClinicDocument>("Clinic", clinicSchema);

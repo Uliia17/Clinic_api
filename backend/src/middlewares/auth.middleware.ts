@@ -48,18 +48,17 @@ class AuthMiddleware {
                     StatusCodesEnum.UNAUTHORIZED,
                 );
             }
-            const isActive = await doctorService.isActive(
-                tokenPayload.doctorId,
-            );
 
-            if (!isActive) {
+            // Перевірка активності акаунта
+            const doctor = await doctorService.getById(tokenPayload.doctorId);
+            if (!doctor || !doctor.isActive) {
                 throw new ApiError(
                     "Account is not active",
                     StatusCodesEnum.FORBIDDEN,
                 );
             }
 
-            req.res.locals.tokenPayload = tokenPayload;
+            res.locals.tokenPayload = tokenPayload;
 
             next();
         } catch (e) {
@@ -81,6 +80,7 @@ class AuthMiddleware {
                     StatusCodesEnum.FORBIDDEN,
                 );
             }
+
             const tokenPayload = tokenService.verifyToken(
                 refreshToken,
                 TokenTypeEnum.REFRESH,
@@ -94,7 +94,7 @@ class AuthMiddleware {
                 throw new ApiError("Invalid token", StatusCodesEnum.FORBIDDEN);
             }
 
-            req.res.locals.tokenPayload = tokenPayload;
+            res.locals.tokenPayload = tokenPayload;
 
             next();
         } catch (e) {
@@ -104,13 +104,10 @@ class AuthMiddleware {
 
     public isAdmin(req: Request, res: Response, next: NextFunction) {
         try {
-            const { role } = req.res.locals.tokenPayload as ITokenPayload;
+            const { role } = res.locals.tokenPayload as ITokenPayload;
 
             if (role !== RoleEnum.ADMIN) {
-                throw new ApiError(
-                    "No has permissions",
-                    StatusCodesEnum.FORBIDDEN,
-                );
+                throw new ApiError("No permission", StatusCodesEnum.FORBIDDEN);
             }
             next();
         } catch (e) {
