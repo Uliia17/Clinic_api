@@ -25,7 +25,6 @@ export interface IClinicDTO {
 
 /**
  * API-відповідь для клієнта (response)
- * ТУТ використаємо response-типи лікарів/сервісів (без паролів, з id як string)
  */
 export interface IClinicResponse {
     _id: string;

@@ -1,7 +1,6 @@
 import { Schema, model, Document, Types } from "mongoose";
 import { IClinic } from "../interfaces/clinic.interface";
 
-// Тип документа для Mongoose
 export type ClinicDocument = IClinic & Document;
 
 const clinicSchema = new Schema<ClinicDocument>(

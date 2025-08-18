@@ -1,4 +1,3 @@
-// src/services/auth.service.ts
 import { Types } from "mongoose";
 import { ApiError } from "../errors/api.error";
 import { ITokenPair } from "../interfaces/token.interface";
@@ -21,13 +20,6 @@ import { doctorService } from "./doctor.service";
 import { clinicRepository } from "../repositories/clinic.repository";
 import { serviceRepository } from "../repositories/service.repository";
 
-/**
- * AuthService
- *
- * - використовує doctorService для створення/отримання лікаря
- * - використовує clinicRepository / serviceRepository для резолвингу назв -> ObjectId
- * - зберігає токени через tokenRepository.create
- */
 class AuthService {
     public async signUp(
         doctorDTO: IDoctorCreateDTO,
@@ -43,7 +35,6 @@ class AuthService {
         // Переконаємось, що email унікальний (doctorService кине помилку якщо ні)
         await doctorService.isEmailUnique(doctorDTO.email);
 
-        // --- Resolve clinics: приймаємо або ObjectId або назву
         const clinicsResolved = await Promise.all(
             (doctorDTO.clinics || []).map(async (c) => {
                 const value = String(c).trim();
@@ -59,7 +50,6 @@ class AuthService {
             }),
         );
 
-        // --- Resolve services: аналогічно
         const servicesResolved = await Promise.all(
             (doctorDTO.services || []).map(async (s) => {
                 const value = String(s).trim();
@@ -74,7 +64,6 @@ class AuthService {
             }),
         );
 
-        // Побудова DTO для створення: покладем тільки ObjectId-імплементацію
         const clinicsUnique = Array.from(
             new Set(clinicsResolved.map(String)),
         ).map((x) => new Types.ObjectId(x));
@@ -88,10 +77,8 @@ class AuthService {
             services: servicesUnique,
         };
 
-        // Викликаємо doctorService.create — там паролі хешуються та повертається IDoctorResponse (populated)
         const createdDoctor = await doctorService.create(createDto);
 
-        // Генеруємо токени (передаємо doctorId як рядок)
         const tokens = tokenService.generateTokens({
             doctorId: createdDoctor._id, // already string
             role: createdDoctor.role,
@@ -107,13 +94,9 @@ class AuthService {
         return { doctor: createdDoctor, tokens };
     }
 
-    /**
-     * signIn: отримує "raw" лікаря (з паролем) і повертає IDoctorResponse + токени
-     */
     public async signIn(
         dto: IAuth,
     ): Promise<{ doctor: IDoctorResponse; tokens: ITokenPair }> {
-        // Отримуємо "raw" (документ з password). Використовуємо doctorService.getRawByEmail
         const rawDoctor = await doctorService.getRawByEmail(dto.email);
         if (!rawDoctor) {
             throw new ApiError(
@@ -134,8 +117,6 @@ class AuthService {
             );
         }
 
-        // Отримуємо відформатований response-об'єкт лікаря (IDoctorResponse)
-        // Використовуємо getByEmail, тому що він робить populate + lean і повертає потрібний тип
         const doctor = await doctorService.getByEmail(dto.email);
 
         const tokens = tokenService.generateTokens({
@@ -192,16 +173,12 @@ class AuthService {
         return admin;
     }
 
-    /**
-     * Активувати акаунт — використовує validateActionToken з конкретним типом
-     */
     public async activate(token: string): Promise<IDoctorResponse> {
         const payload = tokenService.validateActionToken(
             token,
             ActionTokenTypeEnum.ACTIVATE,
         );
 
-        // Оновлюємо користувача через сервіс (updateById хендлить валідацію/мапінг)
         const updated = await doctorService.updateById(payload.doctorId, {
             isActive: true,
             isVerified: true,
@@ -210,9 +187,6 @@ class AuthService {
         return updated;
     }
 
-    /**
-     * Ініціювати запит на відновлення пароля — очікує об'єкт лікаря або мінімум _id + email + role
-     */
     public async passwordRecoveryRequest(doctor: {
         _id: any;
         email: string;

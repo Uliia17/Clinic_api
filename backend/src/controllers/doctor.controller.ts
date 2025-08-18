@@ -77,7 +77,7 @@ class DoctorController {
     }
 
     /**
-     * Блокувати лікаря (не себе!)
+     * Блокувати лікаря
      */
     public async blockDoctor(req: Request, res: Response, next: NextFunction) {
         try {

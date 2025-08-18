@@ -1,12 +1,8 @@
-// src/validators/doctor.validator.ts
 import Joi from "joi";
 import { Types } from "mongoose";
 import { QueryOrderEnumDoctors } from "../enums/query-order.enum";
 import { RoleEnum } from "../enums/role.enum";
 
-/**
- * Альтернатива: або валідний ObjectId, або непорожній рядок (ім'я)
- */
 const objectIdOrName = Joi.alternatives().try(
     Joi.string().custom((value, helpers) => {
         // allow both ObjectId strings and throw otherwise here (this branch only for ObjectId)
@@ -16,9 +12,6 @@ const objectIdOrName = Joi.alternatives().try(
     Joi.string().min(1), // або проста назва (наприклад "Odrex")
 );
 
-/**
- * Звичайні схеми для полів (збережені твої патерни, але з Joi)
- */
 const nameSchema = Joi.string().pattern(/^[A-Z][a-z]{1,14}$/);
 const surnameSchema = Joi.string().pattern(/^[A-Z][a-z]{1,14}$/);
 const phoneSchema = Joi.string().pattern(/^\+380\d{9}$/);
@@ -32,10 +25,6 @@ export const DoctorValidator = {
         phone: phoneSchema.required(),
         email: emailSchema.required(),
         password: passwordSchema.required(),
-        /**
-         * Тепер clinics/services приймають або ObjectId або назву (string)
-         * Наприклад: ["689a...","Odrex"]
-         */
         clinics: Joi.array().items(objectIdOrName).min(1).required(),
         services: Joi.array().items(objectIdOrName).min(1).required(),
         role: Joi.string()

@@ -32,7 +32,7 @@
 							"urlencoded": []
 						},
 						"url": {
-							"raw": "{{mainurl}}/doctors?order=-name",
+							"raw": "{{mainurl}}/doctors",
 							"host": [
 								"{{mainurl}}"
 							],
@@ -62,7 +62,8 @@
 								},
 								{
 									"key": "order",
-									"value": "-name"
+									"value": "-name",
+									"disabled": true
 								},
 								{
 									"key": "page",
@@ -211,7 +212,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"Igor\",\r\n  \"surname\": \"Petrov\",\r\n  \"phone\": \"+380657771213\",\r\n  \"email\": \"polska1993@i.ua\",\r\n  \"password\": \"Password1234\",\r\n  \"clinics\": [\"685da5cb950ed9f7b2624b26\", \"685da79231a869452fd26fc3\"],     \r\n  \"services\": [\"685da87a31a869452fd26fdc\", \"685da7e131a869452fd26fc9\"]   \r\n}",
+							"raw": "{\r\n  \"name\": \"Igor\",\r\n  \"surname\": \"Petrov\",\r\n  \"phone\": \"+380657771213\",\r\n  \"email\": \"Petrov1991@i.ua\",\r\n  \"password\": \"Password1234\",\r\n  \"clinics\": [\"Odrex\", \"Into-Sana\"],\r\n  \"services\": [\"therapist\", \"gynecologist\"]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -353,7 +354,7 @@
 							"urlencoded": []
 						},
 						"url": {
-							"raw": "{{mainurl}}/clinics?order=-name",
+							"raw": "{{mainurl}}/clinics",
 							"host": [
 								"{{mainurl}}"
 							],
@@ -383,7 +384,8 @@
 								},
 								{
 									"key": "order",
-									"value": "-name"
+									"value": "-name",
+									"disabled": true
 								}
 							]
 						}
@@ -587,7 +589,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{mainurl}}/services?order=-name",
+							"raw": "{{mainurl}}/services",
 							"host": [
 								"{{mainurl}}"
 							],
@@ -602,7 +604,8 @@
 								},
 								{
 									"key": "order",
-									"value": "-name"
+									"value": "-name",
+									"disabled": true
 								}
 							]
 						}
@@ -860,19 +863,13 @@
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{
-									"key": "email",
-									"value": "polska1991@i.ua",
-									"type": "text"
-								},
-								{
-									"key": "password",
-									"value": "polska1Y!",
-									"type": "text"
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"polska1991@i.ua\",\r\n  \"password\": \"Polska17!\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
 								}
-							]
+							}
 						},
 						"url": {
 							"raw": "{{mainurl}}/auth/register-admin",
@@ -895,8 +892,13 @@
 							"script": {
 								"exec": [
 									"const res = pm.response.json();\r",
-									"pm.environment.set(\"accessToken\", res.tokens.accessToken);\r",
-									"pm.environment.set(\"refreshToken\", res.tokens.refreshToken);"
+									"if(res.tokens) {\r",
+									"    pm.environment.set(\"accessToken\", res.tokens.accessToken);\r",
+									"    pm.environment.set(\"refreshToken\", res.tokens.refreshToken);\r",
+									"} else {\r",
+									"    console.log(\"No tokens in response:\", res);\r",
+									"}\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -910,19 +912,13 @@
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{
-									"key": "email",
-									"value": "polska1991@i.ua",
-									"type": "text"
-								},
-								{
-									"key": "password",
-									"value": "polska1Y!",
-									"type": "text"
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"polska1991@i.ua\",\r\n  \"password\": \"Polska17!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
 								}
-							]
+							}
 						},
 						"url": {
 							"raw": "{{mainurl}}/auth/sign-in",
@@ -958,7 +954,7 @@
 							"variable": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4NWQ5ZDBjNmVkNTIwYTNhY2U0OTI5ZCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDk2NTUxNywiZXhwIjoxNzUwOTY5MTE3fQ.9dzIKRH8ClSdCKOWrICISyL45ETlGnf4Yi4b4cQJ5n4"
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4YTFlZDFmZjc0M2RlZjViNzU4MTczMCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NTQ0MjQ2MywiZXhwIjoxNzU1NDQ2MDYzfQ.bge6veDlJm1YiKayaNoYzrOPsrx_ujECCztGTnDnii8"
 								}
 							]
 						}
@@ -1056,14 +1052,8 @@
 							"urlencoded": [
 								{
 									"key": "password",
-									"value": "polska1Y!",
+									"value": "Polskaya",
 									"type": "text"
-								},
-								{
-									"key": "",
-									"value": "",
-									"type": "text",
-									"disabled": true
 								}
 							]
 						},
@@ -1080,7 +1070,7 @@
 							"variable": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4NWMyZjE3NzJlOTU1MTdkMmJkNzQxMSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDg3MjkzMiwiZXhwIjoxNzUwODczNTMyfQ.4jqpv3rI1HOCb-SGfRVeyLOyf_9tLCIko7AoZdhbD-s"
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4YTFlZDFmZjc0M2RlZjViNzU4MTczMCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NTQ0MjcyNCwiZXhwIjoxNzU1NDQzMzI0fQ._mkLzbIDQouMKvZvoWvF6kmJiov66NdmEjeKozMYJEg"
 								}
 							]
 						}

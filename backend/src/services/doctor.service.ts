@@ -1,4 +1,3 @@
-// src/services/doctor.service.ts
 import { Types } from "mongoose";
 import bcrypt from "bcryptjs";
 
@@ -78,14 +77,11 @@ export class DoctorService {
         };
     }
 
-    // --- getAll тепер працює з IPaginatedResponse
     public async getAll(
         query: IDoctorQuery,
     ): Promise<IPaginatedResponse<IDoctorResponse>> {
         const pageResult = await doctorRepository.findAll(query);
         const docs: IDoctor[] = pageResult.data;
-
-        // збір ids і батч підвантаження клінік/сервісів (як раніше)
         const clinicIdSet = new Set<string>();
         const serviceIdSet = new Set<string>();
 
@@ -185,7 +181,6 @@ export class DoctorService {
         return result;
     }
 
-    // --- create / getById / getByIds / інші — без змін логіки, але використовують doctorRepository
     public async create(dto: IDoctorCreateDTO): Promise<IDoctorResponse> {
         const existing = await doctorRepository.findByEmail(dto.email);
         if (existing)
@@ -194,7 +189,6 @@ export class DoctorService {
                 StatusCodesEnum.CONFLICT,
             );
 
-        // resolve clinics/services (логіка та wrapper-и як були)
         const clinicsResolved = await Promise.all(
             (dto.clinics || []).map(async (c) => {
                 const value = String(c).trim();
@@ -265,7 +259,6 @@ export class DoctorService {
     }
 
     public async getByIds(ids: string[]): Promise<IDoctorResponse[]> {
-        // отримуємо докторів з репозиторію (репозиторій виконує populate clinics/services)
         const doctors = await doctorRepository.findByIds(ids);
 
         return doctors.map((doc: any) => {
@@ -277,14 +270,14 @@ export class DoctorService {
                 .filter(
                     (v, i, a) =>
                         !a.find((x, idx) => idx < i && x._id === v._id),
-                ); // dedupe
+                );
 
             const services = servicesRaw
                 .map((s: any) => this.mapServiceFromDoc(s))
                 .filter(
                     (v, i, a) =>
                         !a.find((x, idx) => idx < i && x._id === v._id),
-                ); // dedupe
+                );
 
             return {
                 _id: String(doc._id),
@@ -460,7 +453,6 @@ export class DoctorService {
 
 export const doctorService = new DoctorService();
 
-/* helpers to avoid cyclic deps */
 async function service_repository_findByName_safe(name: string) {
     return await serviceRepository.findByName(name);
 }

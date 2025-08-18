@@ -102,9 +102,6 @@ class TokenService {
         }
     }
 
-    /**
-     * Валідує action token заданого типу (ACTIVATE | RECOVERY) та повертає payload.
-     */
     public validateActionToken(
         token: string,
         type: ActionTokenTypeEnum,

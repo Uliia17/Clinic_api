@@ -1,4 +1,3 @@
-// src/repositories/clinic.repository.ts
 import { FilterQuery, Types } from "mongoose";
 import { Clinic, ClinicDocument } from "../models/clinic.model";
 import {

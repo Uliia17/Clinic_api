@@ -1,9 +1,5 @@
-// src/interfaces/service.interface.ts
 import { Types } from "mongoose";
 
-/**
- * DB-модель послуги (для репозиторія/моделі)
- */
 export interface IService {
     _id: Types.ObjectId;
     name: string;
@@ -37,14 +33,3 @@ export interface IServiceResponse {
     createdAt: string;
     updatedAt: string;
 }
-
-/**
- * Пагінація (уніфікована)
- */
-// export interface IPaginatedResponse<T> {
-//     data: T[];
-//     totalItems: number;
-//     totalPages: number;
-//     page?: number;
-//     pageSize?: number;
-// }

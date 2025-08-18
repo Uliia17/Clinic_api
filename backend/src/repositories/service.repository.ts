@@ -1,4 +1,3 @@
-// src/repositories/service.repository.ts
 import { FilterQuery, Types } from "mongoose";
 import { Service } from "../models/service.model";
 import {
@@ -77,13 +76,8 @@ export class ServiceRepository {
             .exec();
     }
 
-    /**
-     * Масове отримання сервісів за масивом ObjectId
-     */
     public async findByIds(ids: Types.ObjectId[]): Promise<IService[]> {
         return await Service.find({ _id: { $in: ids } })
-            // тут можна додати populate, якщо потрібно
-            // наприклад: .populate("clinics")
             .lean<IService[]>()
             .exec();
     }

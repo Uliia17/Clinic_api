@@ -1,11 +1,6 @@
-// src/interfaces/doctor.interface.ts
 import { Types } from "mongoose";
 import { RoleEnum } from "../enums/role.enum";
 
-/**
- * Внутрішня (DB) модель лікаря — для репозиторіїв/моделей.
- * Використовує Types.ObjectId і Date.
- */
 export interface IDoctor {
     _id: Types.ObjectId;
     name: string;
@@ -14,8 +9,8 @@ export interface IDoctor {
     email: string;
     password: string;
     avatar?: string;
-    clinics: Types.ObjectId[]; // зберігаємо посилання на клініки
-    services: Types.ObjectId[]; // посилання на сервіси
+    clinics: Types.ObjectId[];
+    services: Types.ObjectId[];
     role: RoleEnum;
     isDeleted: boolean;
     isVerified: boolean;
@@ -65,18 +60,14 @@ export interface IDoctorUpdateDTO {
 export interface IDoctorQuery {
     page?: number;
     pageSize?: number;
-    search?: string; // універсальний пошук по name/surname/email/phone
-    order?: string; // наприклад "name" або "-surname"
+    search?: string;
+    order?: string;
     name?: string;
     surname?: string;
     phone?: string;
     email?: string;
 }
 
-/**
- * DTO відповіді API для лікаря — у відповіді використовуємо прості типи:
- * id як string, дати як ISO-рядки. Це уникне помилок TS при віддачі в контролер.
- */
 export interface ClinicSummary {
     _id: string;
     name: string;
@@ -98,22 +89,9 @@ export interface IDoctorResponse {
     role: RoleEnum;
     isVerified: boolean;
     isActive: boolean;
-    createdAt: string; // ISO
-    updatedAt: string; // ISO
+    createdAt: string;
+    updatedAt: string;
 }
-
-/**
- * Уніфікована структура пагінації для відповідей API
- */
-// export interface IPaginatedResponse<T> {
-//     data: T[];
-//     totalItems: number;
-//     totalPages: number;
-//     page?: number;
-//     pageSize?: number;
-//     prevPage?: boolean;
-//     nextPage?: boolean;
-// }
 
 export interface IPaginatedResult<T> {
     data: T[];

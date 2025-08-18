@@ -46,16 +46,6 @@ export class ServiceService {
         return this.toResponse(svc);
     }
 
-    // public async getByIds(ids: string[]): Promise<IServiceResponse[]> {
-    //     const objectIds = ids
-    //         .filter((id) => Types.ObjectId.isValid(id))
-    //         .map((id) => new Types.ObjectId(id));
-    //     if (objectIds.length === 0) return [];
-    //
-    //     const services = await serviceRepository.findByIds(objectIds);
-    //     return services.map((s) => this.toResponse(s));
-    // }
-    // всередині ServiceService класу (додай цей метод)
     public async getByIds(ids: string[]): Promise<IServiceResponse[]> {
         if (!ids || ids.length === 0) return [];
 
@@ -64,7 +54,6 @@ export class ServiceService {
             .map((id) => new Types.ObjectId(id));
         if (objectIds.length === 0) return [];
 
-        // Припускаємо, що serviceRepository.findByIds приймає Types.ObjectId[] та повертає IService[]
         const services = await serviceRepository.findByIds(objectIds);
 
         return services.map((svc) => ({

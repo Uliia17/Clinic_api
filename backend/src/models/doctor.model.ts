@@ -1,10 +1,8 @@
-// src/models/doctor.model.ts
 import { Schema, model, Document, Types } from "mongoose";
 import { IDoctor } from "../interfaces/doctor.interface";
 import { RoleEnum } from "../enums/role.enum";
 import { formatAvatarPath } from "../utils/formatAvatar";
 
-// Тип документа для Mongoose
 export type DoctorDocument = IDoctor & Document;
 
 const doctorSchema = new Schema<DoctorDocument>(

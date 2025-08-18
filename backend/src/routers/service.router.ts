@@ -6,7 +6,6 @@ import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-// GET /services — валідація query (name, order, page, pageSize)
 router.get(
     "/",
     commonMiddleware.query(ServiceValidator.query),

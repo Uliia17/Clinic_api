@@ -1,4 +1,3 @@
-// src/repositories/doctor.repository.ts
 import { FilterQuery, Types } from "mongoose";
 import { Doctor } from "../models/doctor.model";
 import {
@@ -12,7 +11,6 @@ import { IPaginatedResponse } from "../interfaces/paginated-response.interface";
 export class DoctorRepository {
     public async create(dto: IDoctorCreateDTO): Promise<IDoctor> {
         const created = await Doctor.create(dto as any);
-        // повернути plain object/lean-like результат
         return (created.toObject ? created.toObject() : created) as IDoctor;
     }
 
@@ -22,7 +20,6 @@ export class DoctorRepository {
         const { page = 1, pageSize = 10, order, search } = query;
         const filter: FilterQuery<IDoctor> = { isDeleted: false } as any;
 
-        // прості фільтри (якщо в IDoctorQuery є інші поля — можна додати)
         if ((query as any).name)
             filter.name = { $regex: (query as any).name, $options: "i" } as any;
         if ((query as any).surname)
@@ -45,7 +42,6 @@ export class DoctorRepository {
         if (typeof (query as any).isVerified === "boolean")
             (filter as any).isVerified = (query as any).isVerified;
 
-        // використовуємо деструктуровану змінну search (щоб уникнути TS6133)
         if (search && String(search).trim() !== "") {
             const s = String(search).trim();
             filter.$or = [
