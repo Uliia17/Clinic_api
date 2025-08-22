@@ -92,11 +92,3 @@ export interface IDoctorResponse {
     createdAt: string;
     updatedAt: string;
 }
-
-export interface IPaginatedResult<T> {
-    data: T[];
-    totalItems: number;
-    totalPages: number;
-    prevPage: number | null;
-    nextPage: number | null;
-}

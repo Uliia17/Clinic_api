@@ -1,42 +1,31 @@
 import { OpenAPIV3 } from "openapi-types";
-import swaggerUI from "swagger-ui-express";
 
 const swaggerDocument: OpenAPIV3.Document = {
     openapi: "3.0.0",
     info: {
-        title: "Clinic API Documentation",
+        title: "Medical API Documentation",
         version: "1.0.0",
-        description: "API documentation for Clinic API",
+        description:
+            "API documentation for Doctors, Hospitals, Services and Auth",
     },
     servers: [
         {
-            url: "http://localhost:7000",
+            url: "/",
             description: "Local server",
         },
     ],
     tags: [
-        {
-            name: "Auth",
-            description: "Authentication endpoints",
-        },
-        {
-            name: "Doctors",
-            description: "Doctors endpoints",
-        },
-        {
-            name: "Clinics",
-            description: "Clinics endpoints",
-        },
-        {
-            name: "Services",
-            description: "Services endpoints",
-        },
+        { name: "Auth", description: "Authentication endpoints" },
+        { name: "Doctors", description: "Doctors endpoints" },
+        { name: "Hospitals", description: "Hospitals endpoints" },
+        { name: "Services", description: "Medical services endpoints" },
     ],
     paths: {
+        // ---------- AUTH ----------
         "/auth/sign-up": {
             post: {
                 tags: ["Auth"],
-                summary: "Register new doctor",
+                summary: "Register new user",
                 requestBody: {
                     required: true,
                     content: {
@@ -51,87 +40,20 @@ const swaggerDocument: OpenAPIV3.Document = {
                                     },
                                     name: { type: "string" },
                                     surname: { type: "string" },
-                                    phone: { type: "string", format: "phone" },
                                 },
                                 required: [
                                     "email",
                                     "password",
                                     "name",
                                     "surname",
-                                    "phone",
                                 ],
                             },
                         },
                     },
                 },
                 responses: {
-                    "201": {
-                        description: "Doctor successfully registered",
-                        content: {
-                            "application/json": {
-                                schema: {
-                                    type: "object",
-                                    properties: {
-                                        doctor: {
-                                            type: "object",
-                                            properties: {
-                                                email: { type: "string" },
-                                                role: { type: "string" },
-                                                name: { type: "string" },
-                                                surname: { type: "string" },
-                                                phone: { type: "string" },
-                                                avatar: { type: "string" },
-                                                isActive: { type: "boolean" },
-                                                isDeleted: { type: "boolean" },
-                                                isVerified: { type: "boolean" },
-                                                _id: { type: "string" },
-                                                createdAt: { type: "string" },
-                                                updatedAt: { type: "string" },
-                                                services: {
-                                                    type: "array",
-                                                    items: {
-                                                        type: "string",
-                                                    },
-                                                },
-                                                clinics: {
-                                                    type: "array",
-                                                    items: {
-                                                        type: "string",
-                                                    },
-                                                },
-                                            },
-                                        },
-                                        tokens: {
-                                            type: "object",
-                                            properties: {
-                                                accessToken: { type: "string" },
-                                                refreshToken: {
-                                                    type: "string",
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    "400": {
-                        description: "Bad request",
-                        content: {
-                            "application/json": {
-                                schema: {
-                                    type: "object",
-                                    properties: {
-                                        status: {
-                                            type: "string",
-                                            default: 400,
-                                        },
-                                        message: { type: "string" },
-                                    },
-                                },
-                            },
-                        },
-                    },
+                    "201": { description: "User successfully registered" },
+                    "400": { description: "Bad request" },
                 },
             },
         },
@@ -158,152 +80,310 @@ const swaggerDocument: OpenAPIV3.Document = {
                     },
                 },
                 responses: {
-                    "200": {
-                        description: "User successfully logged in",
-                        content: {
-                            "application/json": {
-                                schema: {
-                                    type: "object",
-                                    properties: {
-                                        user: {
-                                            type: "object",
-                                            properties: {
-                                                email: { type: "string" },
-                                                role: { type: "string" },
-                                                name: { type: "string" },
-                                                surname: { type: "string" },
-                                                age: { type: "integer" },
-                                                avatart: { type: "string" },
-                                                isActive: { type: "boolean" },
-                                                isDeleted: { type: "boolean" },
-                                                isVerified: { type: "boolean" },
-                                                _id: { type: "string" },
-                                                createdAt: { type: "string" },
-                                                updatedAt: { type: "string" },
-                                            },
-                                        },
-                                        tokens: {
-                                            type: "object",
-                                            properties: {
-                                                accessToken: { type: "string" },
-                                                refreshToken: {
-                                                    type: "string",
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
+                    "200": { description: "User successfully logged in" },
+                    "401": { description: "Unauthorized" },
                 },
             },
         },
-        "/pizzas": {
+        "/auth/me": {
             get: {
-                tags: ["Pizza"],
-                summary: "Get all pizzas with pagination and filters",
+                tags: ["Auth"],
+                summary: "Get current authenticated user",
                 security: [{ bearerAuth: [] }],
+                responses: {
+                    "200": { description: "User profile returned" },
+                    "401": { description: "Unauthorized" },
+                },
+            },
+        },
+
+        // ---------- DOCTORS ----------
+        "/doctors": {
+            get: {
+                tags: ["Doctors"],
+                summary: "Get all doctors with pagination and filters",
                 parameters: [
-                    {
-                        name: "pageSize",
-                        in: "query",
-                        description: "Number of items per page",
-                        schema: { type: "integer", default: 10 },
-                    },
                     {
                         name: "page",
                         in: "query",
-                        required: true,
-                        description: "Page number",
                         schema: { type: "integer", default: 1 },
                     },
                     {
-                        name: "price",
+                        name: "pageSize",
                         in: "query",
-                        description: "Filter by price",
-                        schema: { type: "integer" },
+                        schema: { type: "integer", default: 10 },
                     },
+                    { name: "search", in: "query", schema: { type: "string" } },
                     {
-                        name: "diameter",
+                        name: "specialization",
                         in: "query",
-                        description: "Filter by diameter",
-                        schema: { type: "integer" },
+                        schema: { type: "string" },
                     },
                 ],
                 responses: {
-                    "200": {
-                        description: "List of pizzas with pagination",
-                        content: {
-                            "application/json": {
-                                schema: {
-                                    type: "object",
-                                    properties: {
-                                        totalItems: { type: "integer" },
-                                        totalPages: { type: "integer" },
-                                        prevPage: { type: "boolean" },
-                                        nextPage: { type: "boolean" },
-                                        data: {
-                                            type: "array",
-                                            items: {
-                                                type: "object",
-                                                properties: {
-                                                    _id: { type: "string" },
-                                                    name: { type: "string" },
-                                                    price: { type: "integer" },
-                                                    diameter: {
-                                                        type: "integer",
-                                                    },
-                                                },
-                                            },
-                                        },
-                                    },
+                    "200": { description: "List of doctors with pagination" },
+                },
+            },
+            post: {
+                tags: ["Doctors"],
+                summary: "Create new doctor",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    name: { type: "string" },
+                                    surname: { type: "string" },
+                                    specialization: { type: "string" },
+                                    hospitalId: { type: "string" },
                                 },
+                                required: ["name", "surname", "specialization"],
                             },
                         },
                     },
                 },
+                responses: {
+                    "201": { description: "Doctor successfully created" },
+                },
             },
         },
-        "/users/{userId}": {
+        "/doctors/{id}": {
             get: {
-                tags: ["Users"],
-                summary: "Get user by id",
+                tags: ["Doctors"],
+                summary: "Get doctor by id",
+                parameters: [
+                    {
+                        name: "id",
+                        in: "path",
+                        required: true,
+                        schema: { type: "string" },
+                    },
+                ],
+                responses: { "200": { description: "Doctor details" } },
+            },
+            patch: {
+                tags: ["Doctors"],
+                summary: "Update doctor by id",
                 security: [{ bearerAuth: [] }],
                 parameters: [
                     {
-                        name: "userId",
+                        name: "id",
                         in: "path",
-                        description: "Get user by id",
                         required: true,
                         schema: { type: "string" },
                     },
                 ],
                 responses: {
-                    "200": {
-                        description: "Successfully get user by id",
-                        content: {
-                            "application/json": {
-                                schema: {
-                                    type: "object",
-                                    properties: {
-                                        email: { type: "string" },
-                                        role: { type: "string" },
-                                        name: { type: "string" },
-                                        surname: { type: "string" },
-                                        age: { type: "integer" },
-                                        avatart: { type: "string" },
-                                        isActive: { type: "boolean" },
-                                        isDeleted: { type: "boolean" },
-                                        isVerified: { type: "boolean" },
-                                        _id: { type: "string" },
-                                        createdAt: { type: "string" },
-                                        updatedAt: { type: "string" },
-                                    },
+                    "200": { description: "Doctor updated successfully" },
+                },
+            },
+            delete: {
+                tags: ["Doctors"],
+                summary: "Delete doctor by id",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    {
+                        name: "id",
+                        in: "path",
+                        required: true,
+                        schema: { type: "string" },
+                    },
+                ],
+                responses: {
+                    "204": { description: "Doctor deleted successfully" },
+                },
+            },
+        },
+
+        // ---------- HOSPITALS ----------
+        "/hospitals": {
+            get: {
+                tags: ["Hospitals"],
+                summary: "Get all hospitals with pagination",
+                parameters: [
+                    {
+                        name: "page",
+                        in: "query",
+                        schema: { type: "integer", default: 1 },
+                    },
+                    {
+                        name: "pageSize",
+                        in: "query",
+                        schema: { type: "integer", default: 10 },
+                    },
+                    { name: "search", in: "query", schema: { type: "string" } },
+                ],
+                responses: {
+                    "200": { description: "List of hospitals with pagination" },
+                },
+            },
+            post: {
+                tags: ["Hospitals"],
+                summary: "Create new hospital",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    name: { type: "string" },
+                                    address: { type: "string" },
+                                    phone: { type: "string" },
                                 },
+                                required: ["name", "address"],
                             },
                         },
                     },
+                },
+                responses: {
+                    "201": { description: "Hospital successfully created" },
+                },
+            },
+        },
+        "/hospitals/{id}": {
+            get: {
+                tags: ["Hospitals"],
+                summary: "Get hospital by id",
+                parameters: [
+                    {
+                        name: "id",
+                        in: "path",
+                        required: true,
+                        schema: { type: "string" },
+                    },
+                ],
+                responses: { "200": { description: "Hospital details" } },
+            },
+            patch: {
+                tags: ["Hospitals"],
+                summary: "Update hospital by id",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    {
+                        name: "id",
+                        in: "path",
+                        required: true,
+                        schema: { type: "string" },
+                    },
+                ],
+                responses: {
+                    "200": { description: "Hospital updated successfully" },
+                },
+            },
+            delete: {
+                tags: ["Hospitals"],
+                summary: "Delete hospital by id",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    {
+                        name: "id",
+                        in: "path",
+                        required: true,
+                        schema: { type: "string" },
+                    },
+                ],
+                responses: {
+                    "204": { description: "Hospital deleted successfully" },
+                },
+            },
+        },
+
+        // ---------- SERVICES ----------
+        "/services": {
+            get: {
+                tags: ["Services"],
+                summary: "Get all services with pagination and filters",
+                parameters: [
+                    {
+                        name: "page",
+                        in: "query",
+                        schema: { type: "integer", default: 1 },
+                    },
+                    {
+                        name: "pageSize",
+                        in: "query",
+                        schema: { type: "integer", default: 10 },
+                    },
+                    { name: "search", in: "query", schema: { type: "string" } },
+                ],
+                responses: {
+                    "200": { description: "List of services with pagination" },
+                },
+            },
+            post: {
+                tags: ["Services"],
+                summary: "Create new service",
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    name: { type: "string" },
+                                    description: { type: "string" },
+                                    price: { type: "number" },
+                                },
+                                required: ["name", "price"],
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "201": { description: "Service successfully created" },
+                },
+            },
+        },
+        "/services/{id}": {
+            get: {
+                tags: ["Services"],
+                summary: "Get service by id",
+                parameters: [
+                    {
+                        name: "id",
+                        in: "path",
+                        required: true,
+                        schema: { type: "string" },
+                    },
+                ],
+                responses: { "200": { description: "Service details" } },
+            },
+            patch: {
+                tags: ["Services"],
+                summary: "Update service by id",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    {
+                        name: "id",
+                        in: "path",
+                        required: true,
+                        schema: { type: "string" },
+                    },
+                ],
+                responses: {
+                    "200": { description: "Service updated successfully" },
+                },
+            },
+            delete: {
+                tags: ["Services"],
+                summary: "Delete service by id",
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    {
+                        name: "id",
+                        in: "path",
+                        required: true,
+                        schema: { type: "string" },
+                    },
+                ],
+                responses: {
+                    "204": { description: "Service deleted successfully" },
                 },
             },
         },
@@ -319,4 +399,4 @@ const swaggerDocument: OpenAPIV3.Document = {
     },
 };
 
-export { swaggerDocument, swaggerUI };
+export { swaggerDocument };
