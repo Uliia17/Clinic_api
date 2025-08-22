@@ -60,5 +60,5 @@ export const DoctorValidator = {
         surname: surnameSchema.optional(),
         phone: phoneSchema.optional(),
         email: emailSchema.optional(),
-    }),
+    }).default({}),
 };

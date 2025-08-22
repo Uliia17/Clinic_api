@@ -34,13 +34,20 @@ class CommonMiddleware {
             }
         };
     }
+
     public query(validator: ObjectSchema) {
         return async (req: Request, res: Response, next: NextFunction) => {
             try {
-                req.query = await validator.validateAsync(req.query);
+                req.query = await validator.validateAsync(req.query, {
+                    abortEarly: false,
+                });
                 next();
-            } catch (e) {
-                next(new ApiError(e.details[0].message, 400));
+            } catch (e: any) {
+                if (e.isJoi && e.details) {
+                    next(new ApiError(e.details[0].message, 400));
+                } else {
+                    next(new ApiError("Query validation error", 400));
+                }
             }
         };
     }

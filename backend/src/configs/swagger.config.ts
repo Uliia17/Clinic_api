@@ -6,18 +6,18 @@ const swaggerDocument: OpenAPIV3.Document = {
         title: "Medical API Documentation",
         version: "1.0.0",
         description:
-            "API documentation for Doctors, Hospitals, Services and Auth",
+            "API documentation for Doctors, Clinics, Services and Auth",
     },
     servers: [
         {
-            url: "/",
+            url: "http://localhost:7000",
             description: "Local server",
         },
     ],
     tags: [
         { name: "Auth", description: "Authentication endpoints" },
         { name: "Doctors", description: "Doctors endpoints" },
-        { name: "Hospitals", description: "Hospitals endpoints" },
+        { name: "Clinics", description: "Clinics endpoints" },
         { name: "Services", description: "Medical services endpoints" },
     ],
     paths: {
@@ -198,11 +198,11 @@ const swaggerDocument: OpenAPIV3.Document = {
             },
         },
 
-        // ---------- HOSPITALS ----------
-        "/hospitals": {
+        // ---------- Clinics ----------
+        "/Clinics": {
             get: {
-                tags: ["Hospitals"],
-                summary: "Get all hospitals with pagination",
+                tags: ["Clinics"],
+                summary: "Get all Clinics with pagination",
                 parameters: [
                     {
                         name: "page",
@@ -217,11 +217,11 @@ const swaggerDocument: OpenAPIV3.Document = {
                     { name: "search", in: "query", schema: { type: "string" } },
                 ],
                 responses: {
-                    "200": { description: "List of hospitals with pagination" },
+                    "200": { description: "List of Clinics with pagination" },
                 },
             },
             post: {
-                tags: ["Hospitals"],
+                tags: ["Clinics"],
                 summary: "Create new hospital",
                 security: [{ bearerAuth: [] }],
                 requestBody: {
@@ -245,9 +245,9 @@ const swaggerDocument: OpenAPIV3.Document = {
                 },
             },
         },
-        "/hospitals/{id}": {
+        "/Clinics/{id}": {
             get: {
-                tags: ["Hospitals"],
+                tags: ["Clinics"],
                 summary: "Get hospital by id",
                 parameters: [
                     {
@@ -260,7 +260,7 @@ const swaggerDocument: OpenAPIV3.Document = {
                 responses: { "200": { description: "Hospital details" } },
             },
             patch: {
-                tags: ["Hospitals"],
+                tags: ["Clinics"],
                 summary: "Update hospital by id",
                 security: [{ bearerAuth: [] }],
                 parameters: [
@@ -276,7 +276,7 @@ const swaggerDocument: OpenAPIV3.Document = {
                 },
             },
             delete: {
-                tags: ["Hospitals"],
+                tags: ["Clinics"],
                 summary: "Delete hospital by id",
                 security: [{ bearerAuth: [] }],
                 parameters: [

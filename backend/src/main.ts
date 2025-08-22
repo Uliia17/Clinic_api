@@ -21,14 +21,12 @@ app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 app.use("/", apiRouter);
 
-app.use(
-    "*",
-    (err: ApiError, req: Request, res: Response, next: NextFunction) => {
-        const status = err.status || 500;
-        const message = err.message ?? "Something went wrong";
-        res.status(status).json({ status, message });
-    },
-);
+app.use((err: ApiError, req: Request, res: Response, next: NextFunction) => {
+    const status = err.status || 500;
+    const message = err.message ?? "Something went wrong";
+    res.status(status).json({ status, message });
+});
+
 process.on("uncaughtException", (err) => {
     console.log("uncaughtException", err);
     process.exit(1);
