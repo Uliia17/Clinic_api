@@ -97,8 +97,28 @@ class AuthService {
     public async signIn(
         dto: IAuth,
     ): Promise<{ doctor: IDoctorResponse; tokens: ITokenPair }> {
+        // базова валідація вхідних даних
+        if (!dto?.email || !dto?.password) {
+            throw new ApiError(
+                "Email and password are required",
+                StatusCodesEnum.BAD_REQUEST,
+            );
+        }
+
         const rawDoctor = await doctorService.getRawByEmail(dto.email);
+
         if (!rawDoctor) {
+            throw new ApiError(
+                "Email or password invalid",
+                StatusCodesEnum.UNAUTHORIZED,
+            );
+        }
+
+        if (!rawDoctor.password) {
+            console.error(
+                "Auth.signIn: missing password hash for user",
+                rawDoctor._id,
+            );
             throw new ApiError(
                 "Email or password invalid",
                 StatusCodesEnum.UNAUTHORIZED,
@@ -112,7 +132,7 @@ class AuthService {
 
         if (!valid) {
             throw new ApiError(
-                "Invalid email or password",
+                "Email or password invalid",
                 StatusCodesEnum.UNAUTHORIZED,
             );
         }
@@ -124,7 +144,6 @@ class AuthService {
             role: doctor.role,
         });
 
-        // збереження токенів
         await tokenRepository.create({
             _doctorId: new Types.ObjectId(doctor._id),
             accessToken: tokens.accessToken,

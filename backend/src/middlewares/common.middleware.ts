@@ -38,11 +38,23 @@ class CommonMiddleware {
     public query(validator: ObjectSchema) {
         return async (req: Request, res: Response, next: NextFunction) => {
             try {
-                req.query = await validator.validateAsync(req.query, {
-                    abortEarly: false,
-                });
+                const validated = await validator.validateAsync(
+                    req.query ?? {},
+                    {
+                        abortEarly: false,
+                        allowUnknown: true,
+                        stripUnknown: true,
+                        convert: true,
+                    },
+                );
+
+                (req as any).validatedQuery = validated;
+
                 next();
             } catch (e: any) {
+                if (process.env.NODE_ENV !== "production") {
+                    console.error("Joi query error:", e?.details ?? e);
+                }
                 if (e.isJoi && e.details) {
                     next(new ApiError(e.details[0].message, 400));
                 } else {

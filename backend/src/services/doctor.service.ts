@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import bcrypt from "bcryptjs";
 
-import { Doctor } from "../models/doctor.model";
+import { Doctor, DoctorDocument } from "../models/doctor.model";
 import { Clinic } from "../models/clinic.model";
 import { Service } from "../models/service.model";
 
@@ -301,8 +301,9 @@ export class DoctorService {
         });
     }
 
-    public async getRawByEmail(email: string): Promise<IDoctor | null> {
-        return await doctorRepository.findByEmail(email);
+    public async getRawByEmail(email: string): Promise<DoctorDocument | null> {
+        // передаємо true, щоб підхопити password
+        return await doctorRepository.findByEmail(email, true);
     }
 
     public async getByEmail(email: string): Promise<IDoctorResponse> {

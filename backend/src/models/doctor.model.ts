@@ -11,7 +11,7 @@ const doctorSchema = new Schema<DoctorDocument>(
         surname: { type: String, required: true, index: true },
         phone: { type: String, required: true, unique: true, index: true },
         email: { type: String, required: true, unique: true, index: true },
-        password: { type: String, required: true },
+        password: { type: String, required: true, select: false },
         avatar: { type: String, default: "" },
         clinics: [{ type: Types.ObjectId, ref: "Clinic" }],
         services: [{ type: Types.ObjectId, ref: "Service" }],

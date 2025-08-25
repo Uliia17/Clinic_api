@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
-  "scripts": {
-    "start": "rimraf dist && tsc-watch --onSuccess \"npm run watch:server\"",
-    "watch:server": "tsx src/main.ts --watch"
-  },
+    "scripts": {
+      "start": "rimraf dist && tsc-watch --onSuccess \"npm run watch:server\"",
+      "watch:server": "tsx src/main.ts --watch"
+    },
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cron": "^4.3.3",

@@ -5,11 +5,10 @@ import { RoleEnum } from "../enums/role.enum";
 
 const objectIdOrName = Joi.alternatives().try(
     Joi.string().custom((value, helpers) => {
-        // allow both ObjectId strings and throw otherwise here (this branch only for ObjectId)
         if (Types.ObjectId.isValid(value)) return value;
         return helpers.error("any.invalid");
     }, "ObjectId validation"),
-    Joi.string().min(1), // або проста назва (наприклад "Odrex")
+    Joi.string().min(1),
 );
 
 const nameSchema = Joi.string().pattern(/^[A-Z][a-z]{1,14}$/);
@@ -47,18 +46,28 @@ export const DoctorValidator = {
     }),
 
     query: Joi.object({
-        page: Joi.number().min(1).default(1),
-        pageSize: Joi.number().min(1).max(100).default(10),
-        search: Joi.string().trim().optional(),
+        page: Joi.number().integer().min(1).default(1),
+        pageSize: Joi.number().integer().min(1).max(100).default(10),
+
+        search: Joi.string().trim().allow("").optional(),
+
+        // order: передається як 'name' або '-name'
         order: Joi.string()
             .valid(
                 ...Object.values(QueryOrderEnumDoctors),
                 ...Object.values(QueryOrderEnumDoctors).map((f) => `-${f}`),
             )
             .optional(),
-        name: nameSchema.optional(),
-        surname: surnameSchema.optional(),
-        phone: phoneSchema.optional(),
-        email: emailSchema.optional(),
-    }).default({}),
+
+        name: Joi.string().trim().min(1).max(100).allow("").optional(),
+        surname: Joi.string().trim().min(1).max(100).allow("").optional(),
+        phone: Joi.string().trim().min(1).max(50).allow("").optional(),
+        email: Joi.string()
+            .email({ tlds: { allow: false } })
+            .allow("")
+            .optional(),
+
+        isActive: Joi.boolean().optional(),
+        isVerified: Joi.boolean().optional(),
+    }).options({ allowUnknown: true }),
 };

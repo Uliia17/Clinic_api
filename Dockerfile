@@ -11,4 +11,3 @@ COPY ./backend .
 EXPOSE 7000
 
 CMD ["npm", "start"]
-

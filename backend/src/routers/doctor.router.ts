@@ -13,6 +13,12 @@ router.get(
     doctorController.getAll.bind(doctorController),
 );
 
+router.get(
+    "/:id",
+    commonMiddleware.isIdValidate("id"),
+    doctorController.getById.bind(doctorController),
+);
+
 router.post(
     "/",
     authMiddleware.checkAccessToken,

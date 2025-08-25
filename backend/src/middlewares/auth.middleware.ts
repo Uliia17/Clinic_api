@@ -49,7 +49,6 @@ class AuthMiddleware {
                 );
             }
 
-            // Перевірка активності акаунта
             const doctor = await doctorService.getById(tokenPayload.doctorId);
             if (!doctor || !doctor.isActive) {
                 throw new ApiError(

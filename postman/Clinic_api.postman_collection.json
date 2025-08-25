@@ -32,7 +32,7 @@
 							"urlencoded": []
 						},
 						"url": {
-							"raw": "{{mainurl}}/doctors",
+							"raw": "{{mainurl}}/doctors?pageSize=1",
 							"host": [
 								"{{mainurl}}"
 							],
@@ -47,7 +47,7 @@
 								},
 								{
 									"key": "surname",
-									"value": "Petrov",
+									"value": "Superuser",
 									"disabled": true
 								},
 								{
@@ -57,12 +57,12 @@
 								},
 								{
 									"key": "phone",
-									"value": "%2B380657771212",
+									"value": "+380000000000",
 									"disabled": true
 								},
 								{
 									"key": "order",
-									"value": "-name",
+									"value": "name",
 									"disabled": true
 								},
 								{
@@ -72,8 +72,7 @@
 								},
 								{
 									"key": "pageSize",
-									"value": "1",
-									"disabled": true
+									"value": "1"
 								}
 							]
 						}
@@ -107,7 +106,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "685da98d31a869452fd26fe8"
+									"value": "68a8c4381aa54c5b96618aac"
 								}
 							]
 						}
@@ -131,7 +130,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\"password\": \"Password1234!\"  \r\n}",
+							"raw": "{\r\n\"phone\": \"+380507771213\" \r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -150,7 +149,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "685da98d31a869452fd26fe8"
+									"value": "68a8c4381aa54c5b96618aac"
 								}
 							]
 						}
@@ -188,7 +187,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "685c341072e95517d2bd7437"
+									"value": "68a8beba97d3ece8bcf854a1"
 								}
 							]
 						}
@@ -252,7 +251,7 @@
 								{
 									"key": "avatar",
 									"type": "file",
-									"src": "/C:/Users/Юлия/OneDrive/Изображения/avatar.png.png"
+									"src": "/C:/Users/Юлия/OneDrive/Рабочий стол/avatar.png"
 								}
 							]
 						},
@@ -269,7 +268,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "6841fa64acc4feb0a774e2c6"
+									"value": "68a8c4381aa54c5b96618aac"
 								}
 							]
 						}
@@ -354,7 +353,7 @@
 							"urlencoded": []
 						},
 						"url": {
-							"raw": "{{mainurl}}/clinics",
+							"raw": "{{mainurl}}/clinics?order=name",
 							"host": [
 								"{{mainurl}}"
 							],
@@ -373,19 +372,8 @@
 									"disabled": true
 								},
 								{
-									"key": "doctorId",
-									"value": "685da98d31a869452fd26fe8",
-									"disabled": true
-								},
-								{
-									"key": "serviceId",
-									"value": "685da7e131a869452fd26fc9",
-									"disabled": true
-								},
-								{
 									"key": "order",
-									"value": "-name",
-									"disabled": true
+									"value": "name"
 								}
 							]
 						}
@@ -409,7 +397,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"doctors\": [\"685da98d31a869452fd26fe8\"]\r\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -428,7 +416,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "685da79231a869452fd26fc3"
+									"value": "68a1ef13f743def5b758174b"
 								}
 							]
 						}
@@ -469,7 +457,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "685da79231a869452fd26fc3"
+									"value": "68a1ef13f743def5b758174b"
 								}
 							]
 						}
@@ -540,8 +528,7 @@
 								{
 									"key": "name",
 									"value": "Ophthalmologist",
-									"type": "text",
-									"disabled": true
+									"type": "text"
 								},
 								{
 									"key": "name",
@@ -564,7 +551,8 @@
 								{
 									"key": "name",
 									"value": "Therapist",
-									"type": "text"
+									"type": "text",
+									"disabled": true
 								}
 							]
 						},
@@ -589,7 +577,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{mainurl}}/services",
+							"raw": "{{mainurl}}/services?order=-name",
 							"host": [
 								"{{mainurl}}"
 							],
@@ -599,13 +587,12 @@
 							"query": [
 								{
 									"key": "name",
-									"value": "sur",
+									"value": "therap",
 									"disabled": true
 								},
 								{
 									"key": "order",
-									"value": "-name",
-									"disabled": true
+									"value": "-name"
 								}
 							]
 						}
@@ -864,7 +851,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"polska1991@i.ua\",\r\n  \"password\": \"Polska17!\"\r\n}\r\n",
+							"raw": "{\r\n  \"email\": \"polska1991@i.ua\",\r\n  \"password\": \"Polskaya\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -892,13 +879,8 @@
 							"script": {
 								"exec": [
 									"const res = pm.response.json();\r",
-									"if(res.tokens) {\r",
-									"    pm.environment.set(\"accessToken\", res.tokens.accessToken);\r",
-									"    pm.environment.set(\"refreshToken\", res.tokens.refreshToken);\r",
-									"} else {\r",
-									"    console.log(\"No tokens in response:\", res);\r",
-									"}\r",
-									""
+									"pm.environment.set(\"accessToken\", res.tokens.accessToken);\r",
+									"pm.environment.set(\"refreshToken\", res.tokens.refreshToken);"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -913,7 +895,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"polska1991@i.ua\",\r\n  \"password\": \"Polska17!\"\r\n}",
+							"raw": "{\r\n  \"email\": \"polska1991@i.ua\",\r\n  \"password\": \"polskaya\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -954,7 +936,7 @@
 							"variable": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4YTFlZDFmZjc0M2RlZjViNzU4MTczMCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NTQ0MjQ2MywiZXhwIjoxNzU1NDQ2MDYzfQ.bge6veDlJm1YiKayaNoYzrOPsrx_ujECCztGTnDnii8"
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4YThiY2NhOTdkM2VjZThiY2Y4NTQ3ZiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NTg4ODg0MywiZXhwIjoxNzU1ODkyNDQzfQ.CnNB2ze-5xCtayaGXqBeF2pHJ4v_1gbj6LPKO3-bVF4"
 								}
 							]
 						}
@@ -1052,7 +1034,7 @@
 							"urlencoded": [
 								{
 									"key": "password",
-									"value": "Polskaya",
+									"value": "polskaya",
 									"type": "text"
 								}
 							]
@@ -1070,7 +1052,7 @@
 							"variable": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4YTFlZDFmZjc0M2RlZjViNzU4MTczMCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NTQ0MjcyNCwiZXhwIjoxNzU1NDQzMzI0fQ._mkLzbIDQouMKvZvoWvF6kmJiov66NdmEjeKozMYJEg"
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4YThiY2NhOTdkM2VjZThiY2Y4NTQ3ZiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NTg4OTE2OSwiZXhwIjoxNzU1ODg5NzY5fQ.tyhYW50mlyCBpbkn0ODzUci86nrdlZ8pocx_uLw-yrE"
 								}
 							]
 						}
