@@ -9,7 +9,7 @@ const router = Router();
 router.get(
     "/",
     commonMiddleware.query(ServiceValidator.query),
-    serviceController.getServices.bind(serviceController),
+    serviceController.getAll.bind(serviceController),
 );
 
 router.post(

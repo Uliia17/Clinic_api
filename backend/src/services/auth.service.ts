@@ -24,7 +24,6 @@ class AuthService {
     public async signUp(
         doctorDTO: IDoctorCreateDTO,
     ): Promise<{ doctor: IDoctorResponse; tokens: ITokenPair }> {
-        // Забороняємо реєстрацію адміна через цей endpoint
         if (doctorDTO.role === RoleEnum.ADMIN) {
             throw new ApiError(
                 "Cannot register admin this way",
@@ -32,7 +31,6 @@ class AuthService {
             );
         }
 
-        // Переконаємось, що email унікальний (doctorService кине помилку якщо ні)
         await doctorService.isEmailUnique(doctorDTO.email);
 
         const clinicsResolved = await Promise.all(
@@ -41,10 +39,12 @@ class AuthService {
                 if (Types.ObjectId.isValid(value) && value.length === 24) {
                     return new Types.ObjectId(value);
                 }
-                // шукаємо по назві
                 let clinic = await clinicRepository.findByName(value);
                 if (!clinic) {
-                    clinic = await clinicRepository.create({ name: value });
+                    clinic = await clinicRepository.create({
+                        name: value,
+                        address: "-",
+                    });
                 }
                 return clinic._id;
             }),
@@ -83,8 +83,6 @@ class AuthService {
             doctorId: createdDoctor._id, // already string
             role: createdDoctor.role,
         });
-
-        // Зберігаємо токени у репозиторії (перетворюємо _doctorId у ObjectId)
         await tokenRepository.create({
             _doctorId: new Types.ObjectId(createdDoctor._id),
             accessToken: tokens.accessToken,
@@ -97,7 +95,6 @@ class AuthService {
     public async signIn(
         dto: IAuth,
     ): Promise<{ doctor: IDoctorResponse; tokens: ITokenPair }> {
-        // базова валідація вхідних даних
         if (!dto?.email || !dto?.password) {
             throw new ApiError(
                 "Email and password are required",
@@ -153,9 +150,6 @@ class AuthService {
         return { doctor, tokens };
     }
 
-    /**
-     * Зареєструвати адміністратора
-     */
     public async registerAdmin(
         email: string,
         password: string,
@@ -224,10 +218,6 @@ class AuthService {
             { url },
         );
     }
-
-    /**
-     * Відновлення пароля по токену
-     */
     public async recoveryPassword(
         token: string,
         password: string,
@@ -238,7 +228,7 @@ class AuthService {
         );
 
         const updated = await doctorService.updateById(payload.doctorId, {
-            password, // doctorService.updateById сам захешує
+            password,
         } as any);
 
         return updated;

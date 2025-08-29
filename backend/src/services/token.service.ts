@@ -86,10 +86,6 @@ class TokenService {
         return jwt.sign(payload, secret, { expiresIn });
     }
 
-    /**
-     * Перевіряє чи існує access/refresh токен у БД.
-     * Повертає boolean замість кидання, якщо не знайдено.
-     */
     public async isTokenExists(
         token: string,
         type: TokenTypeEnum,

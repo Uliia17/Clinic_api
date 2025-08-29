@@ -8,9 +8,6 @@ import {
 } from "../interfaces/doctor.interface";
 import { IPaginatedResponse } from "../interfaces/paginated-response.interface";
 
-/**
- * DoctorRepository — lean-об'єкти для read, DoctorDocument для create.
- */
 export class DoctorRepository {
     public async create(dto: IDoctorCreateDTO): Promise<DoctorDocument> {
         const created = await Doctor.create(dto as any);
@@ -22,8 +19,6 @@ export class DoctorRepository {
     ): Promise<IPaginatedResponse<IDoctor>> {
         const { page = 1, pageSize = 10, order } = query;
         const filter: any = { isDeleted: false };
-
-        // Безпечні фільтри (через any кастинг — щоб не валилося при додаткових полях)
         if ((query as any).name)
             filter.name = { $regex: (query as any).name, $options: "i" };
         if ((query as any).surname)
@@ -32,12 +27,13 @@ export class DoctorRepository {
             filter.email = { $regex: (query as any).email, $options: "i" };
         if ((query as any).phone)
             filter.phone = { $regex: (query as any).phone, $options: "i" };
-        if (typeof (query as any).isActive === "boolean")
-            filter.isActive = (query as any).isActive;
-        if (typeof (query as any).isVerified === "boolean")
-            filter.isVerified = (query as any).isVerified;
+        if (query.isActive === true || query.isActive === false) {
+            filter.isActive = query.isActive;
+        }
+        if (query.isVerified === true || query.isVerified === false) {
+            filter.isVerified = query.isVerified;
+        }
 
-        // загальний пошук (search)
         if (
             (query as any).search &&
             String((query as any).search).trim() !== ""
@@ -51,7 +47,6 @@ export class DoctorRepository {
             ];
         }
 
-        // сортування
         const sort: Record<string, 1 | -1> = {};
         if (order) {
             const dir = order.startsWith("-") ? -1 : 1;
@@ -83,33 +78,6 @@ export class DoctorRepository {
         };
     }
 
-    // знайти декілька лікарів за масивом id, з populate клінік/сервісів:
-    public async findByIds(
-        ids: (string | Types.ObjectId)[],
-    ): Promise<IDoctor[]> {
-        const objectIds = (ids || [])
-            .map((id) => {
-                const s = String(id);
-                return Types.ObjectId.isValid(s) ? new Types.ObjectId(s) : null;
-            })
-            .filter((x): x is Types.ObjectId => x !== null);
-
-        if (objectIds.length === 0) return [];
-
-        return await Doctor.find({ _id: { $in: objectIds } })
-            .populate("clinics")
-            .populate("services")
-            .lean<IDoctor[]>()
-            .exec();
-    }
-
-    public async getById(id: string): Promise<IDoctor | null> {
-        if (!Types.ObjectId.isValid(id)) return null;
-        return await Doctor.findById(new Types.ObjectId(id))
-            .lean<IDoctor>()
-            .exec();
-    }
-
     public async findByEmail(
         email: string,
         withPassword = false,
@@ -138,6 +106,10 @@ export class DoctorRepository {
         return await Doctor.findByIdAndDelete(new Types.ObjectId(id))
             .lean<IDoctor>()
             .exec();
+    }
+
+    public async findByClinicId(clinicId: string) {
+        return await Doctor.find({ clinics: clinicId }).lean().exec();
     }
 
     public async setActiveStatus(

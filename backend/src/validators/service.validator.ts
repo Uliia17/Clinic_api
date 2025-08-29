@@ -3,7 +3,7 @@ import { QueryOrderEnumServices } from "../enums/query-order.enum";
 
 const nameSchema = joi
     .string()
-    .pattern(/^[А-ЯA-ZІЇЄҐ][А-ЯA-Za-zа-яіїєґ0-9\s’" -]{1,50}$/)
+    .pattern(/^[А-ЯA-ZІЇЄҐа-яa-zіїєґ0-9\s’" -]{1,50}$/)
     .optional();
 
 export class ServiceValidator {
@@ -11,9 +11,28 @@ export class ServiceValidator {
         name: joi.string().trim().required(),
     });
 
-    public static update = joi.object({
-        name: joi.string().trim().required(),
-    });
+    public static nameSchema = joi.string().trim().min(2).max(100);
+
+    public static update = joi
+        .object({
+            name: this.nameSchema.optional(),
+
+            clinics: joi
+                .array()
+                .items(joi.string().hex().length(24)) // тільки ObjectId
+                .optional(),
+
+            services: joi
+                .array()
+                .items(joi.string().hex().length(24)) // тільки ObjectId
+                .optional(),
+
+            doctors: joi
+                .array()
+                .items(joi.string().hex().length(24)) // тільки ObjectId
+                .optional(),
+        })
+        .min(1);
 
     public static query = joi.object({
         name: nameSchema,

@@ -44,14 +44,16 @@ router.delete(
     doctorController.deleteById,
 );
 
+// doctor.router.ts
 router.patch(
-    "/:id/block",
+    "/block/:id",
     authMiddleware.checkAccessToken,
     authMiddleware.isAdmin,
     doctorController.blockDoctor,
 );
+
 router.patch(
-    "/:id/unblock",
+    "/unblock/:id",
     authMiddleware.checkAccessToken,
     authMiddleware.isAdmin,
     doctorController.unblockDoctor,

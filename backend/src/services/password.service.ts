@@ -1,10 +1,6 @@
 import bcrypt from "bcryptjs";
 
 class PasswordService {
-    public hashPassword(password: string): Promise<string> {
-        return bcrypt.hash(password, 10);
-    }
-
     public comparePassword(
         password: string,
         hashedPassword: string,

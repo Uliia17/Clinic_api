@@ -4,6 +4,7 @@ import {
     IClinic,
     IClinicDTO,
     IClinicQuery,
+    IClinicUpdateDTO,
 } from "../interfaces/clinic.interface";
 import { IPaginatedResponse } from "../interfaces/paginated-response.interface";
 
@@ -21,7 +22,6 @@ export class ClinicRepository {
         return created as ClinicDocument;
     }
 
-    // пагінований пошук клінік
     public async search(
         query: IClinicQuery,
     ): Promise<IPaginatedResponse<IClinic>> {
@@ -64,24 +64,6 @@ export class ClinicRepository {
         return await Clinic.find().lean<IClinic[]>().exec();
     }
 
-    public async findByIds(
-        ids: (string | Types.ObjectId)[],
-    ): Promise<IClinic[]> {
-        const objectIds = (ids || [])
-            .map((id) =>
-                Types.ObjectId.isValid(String(id))
-                    ? new Types.ObjectId(String(id))
-                    : null,
-            )
-            .filter((x): x is Types.ObjectId => x !== null);
-
-        if (objectIds.length === 0) return [];
-
-        return await Clinic.find({ _id: { $in: objectIds } })
-            .lean<IClinic[]>()
-            .exec();
-    }
-
     public async getById(id: string): Promise<IClinic | null> {
         if (!Types.ObjectId.isValid(id)) return null;
         return await Clinic.findById(new Types.ObjectId(id))
@@ -91,12 +73,9 @@ export class ClinicRepository {
 
     public async updateById(
         id: string,
-        dto: IClinicDTO,
+        dto: IClinicUpdateDTO,
     ): Promise<IClinic | null> {
-        if (!Types.ObjectId.isValid(id)) return null;
-        return await Clinic.findByIdAndUpdate(new Types.ObjectId(id), dto, {
-            new: true,
-        })
+        return await Clinic.findByIdAndUpdate(id, dto, { new: true })
             .lean<IClinic>()
             .exec();
     }

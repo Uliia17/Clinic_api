@@ -96,7 +96,122 @@ const swaggerDocument: OpenAPIV3.Document = {
                 },
             },
         },
-
+        "/auth/refresh": {
+            post: {
+                tags: ["Auth"],
+                summary: "Refresh access token",
+                security: [{ bearerAuth: [] }],
+                responses: {
+                    "200": { description: "Tokens refreshed" },
+                    "401": { description: "Unauthorized" },
+                },
+            },
+        },
+        "/auth/register-admin": {
+            post: {
+                tags: ["Auth"],
+                summary: "Register new admin",
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    email: { type: "string", format: "email" },
+                                    password: {
+                                        type: "string",
+                                        format: "password",
+                                    },
+                                },
+                                required: ["email", "password"],
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "201": { description: "Admin successfully registered" },
+                    "400": { description: "Bad request" },
+                },
+            },
+        },
+        "/auth/activate/{token}": {
+            get: {
+                tags: ["Auth"],
+                summary: "Activate account via token",
+                parameters: [
+                    {
+                        name: "token",
+                        in: "path",
+                        required: true,
+                        schema: { type: "string" },
+                    },
+                ],
+                responses: {
+                    "200": { description: "Account activated" },
+                    "400": { description: "Invalid or expired token" },
+                },
+            },
+        },
+        "/auth/recovery-email": {
+            post: {
+                tags: ["Auth"],
+                summary: "Request password recovery email",
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    email: { type: "string", format: "email" },
+                                },
+                                required: ["email"],
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "Recovery email sent" },
+                    "400": { description: "Bad request" },
+                },
+            },
+        },
+        "/auth/recovery-password/{token}": {
+            post: {
+                tags: ["Auth"],
+                summary: "Reset password via token",
+                parameters: [
+                    {
+                        name: "token",
+                        in: "path",
+                        required: true,
+                        schema: { type: "string" },
+                    },
+                ],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    password: {
+                                        type: "string",
+                                        format: "password",
+                                    },
+                                },
+                                required: ["password"],
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    "200": { description: "Password successfully reset" },
+                    "400": { description: "Invalid or expired token" },
+                },
+            },
+        },
         // ---------- DOCTORS ----------
         "/doctors": {
             get: {

@@ -10,9 +10,6 @@ import { ApiError } from "../errors/api.error";
 import { ITokenPayload } from "../interfaces/token.interface";
 
 class DoctorController {
-    /**
-     * Пагінований список лікарів з фільтрацією та пошуком
-     */
     public async getAll(req: Request, res: Response, next: NextFunction) {
         try {
             const query = req.query as unknown as IDoctorQuery;
@@ -23,9 +20,6 @@ class DoctorController {
         }
     }
 
-    /**
-     * Створення лікаря
-     */
     public async create(req: Request, res: Response, next: NextFunction) {
         try {
             const dto = req.body as IDoctorCreateDTO;
@@ -36,9 +30,6 @@ class DoctorController {
         }
     }
 
-    /**
-     * Отримати лікаря за ID
-     */
     public async getById(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
@@ -49,9 +40,6 @@ class DoctorController {
         }
     }
 
-    /**
-     * Оновлення лікаря за ID
-     */
     public async updateById(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
@@ -63,9 +51,6 @@ class DoctorController {
         }
     }
 
-    /**
-     * Видалення лікаря за ID
-     */
     public async deleteById(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
@@ -76,9 +61,6 @@ class DoctorController {
         }
     }
 
-    /**
-     * Блокувати лікаря
-     */
     public async blockDoctor(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
@@ -96,9 +78,6 @@ class DoctorController {
         }
     }
 
-    /**
-     * Розблокувати лікаря
-     */
     public async unblockDoctor(
         req: Request,
         res: Response,
@@ -120,9 +99,6 @@ class DoctorController {
         }
     }
 
-    /**
-     * Оновити аватар
-     */
     public async uploadAvatar(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;

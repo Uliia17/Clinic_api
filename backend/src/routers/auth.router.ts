@@ -31,7 +31,7 @@ router.post(
 router.post(
     "/recovery",
     commonMiddleware.validateBody(RecoveryValidator.emailSchema),
-    authController.passwordRecoveryRequest,
+    authController.recoveryEmail,
 );
 router.post(
     "/recovery/:token",

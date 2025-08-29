@@ -4,6 +4,7 @@ import {
     IService,
     IServiceDTO,
     IServiceQuery,
+    IServiceUpdateDTO,
 } from "../interfaces/service.interface";
 import { IPaginatedResponse } from "../interfaces/paginated-response.interface";
 
@@ -19,10 +20,6 @@ export class ServiceRepository {
         })
             .lean<IService>()
             .exec();
-    }
-
-    public async findAll(): Promise<IService[]> {
-        return await Service.find().lean<IService[]>().exec();
     }
 
     public async search(
@@ -63,24 +60,6 @@ export class ServiceRepository {
         };
     }
 
-    public async findByIds(
-        ids: (string | Types.ObjectId)[],
-    ): Promise<IService[]> {
-        const objectIds = (ids || [])
-            .map((id) =>
-                Types.ObjectId.isValid(String(id))
-                    ? new Types.ObjectId(String(id))
-                    : null,
-            )
-            .filter((x): x is Types.ObjectId => x !== null);
-
-        if (objectIds.length === 0) return [];
-
-        return await Service.find({ _id: { $in: objectIds } })
-            .lean<IService[]>()
-            .exec();
-    }
-
     public async getById(id: string): Promise<IService | null> {
         if (!Types.ObjectId.isValid(id)) return null;
         return await Service.findById(new Types.ObjectId(id))
@@ -90,12 +69,9 @@ export class ServiceRepository {
 
     public async updateById(
         id: string,
-        dto: IServiceDTO,
+        dto: Partial<IServiceUpdateDTO>,
     ): Promise<IService | null> {
-        if (!Types.ObjectId.isValid(id)) return null;
-        return await Service.findByIdAndUpdate(new Types.ObjectId(id), dto, {
-            new: true,
-        })
+        return await Service.findByIdAndUpdate(id, dto, { new: true })
             .lean<IService>()
             .exec();
     }

@@ -6,12 +6,9 @@ import { ClinicValidator } from "../validators/clinic.validator";
 
 const router = Router();
 
-router.get("/", clinicController.search.bind(clinicController));
-
 router.get(
-    "/all",
-    authMiddleware.checkAccessToken,
-    authMiddleware.isAdmin,
+    "/",
+    commonMiddleware.query(ClinicValidator.query),
     clinicController.getAll.bind(clinicController),
 );
 

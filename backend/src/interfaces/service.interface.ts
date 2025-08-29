@@ -1,22 +1,27 @@
 import { Types } from "mongoose";
 
 export interface IService {
-    _id: Types.ObjectId;
+    _id?: Types.ObjectId;
     name: string;
+    clinics?: (Types.ObjectId | string)[];
+    doctors?: (Types.ObjectId | string)[];
+
     createdAt?: Date;
     updatedAt?: Date;
 }
 
-/**
- * DTO створення/оновлення послуги
- */
 export interface IServiceDTO {
     name: string;
+    clinics?: (Types.ObjectId | string)[];
+    doctors?: (Types.ObjectId | string)[];
 }
 
-/**
- * Параметри запиту для списку послуг
- */
+export interface IServiceUpdateDTO {
+    name?: string;
+    clinics?: (Types.ObjectId | string)[];
+    doctors?: (Types.ObjectId | string)[];
+}
+
 export interface IServiceQuery {
     name?: string;
     order?: string;
@@ -24,12 +29,27 @@ export interface IServiceQuery {
     pageSize?: number;
 }
 
-/**
- * DTO відповіді API для послуги — _id і дати як рядки
- */
+export interface IServiceClinic {
+    _id: string;
+    name: string;
+    address?: string;
+    phone?: string;
+}
+
+export interface IServiceDoctor {
+    _id: string;
+    name: string;
+    surname?: string;
+    phone?: string;
+    clinics?: string[];
+    services?: string[];
+}
+
 export interface IServiceResponse {
     _id: string;
     name: string;
-    createdAt: string;
-    updatedAt: string;
+    clinics: IServiceClinic[];
+    doctors: IServiceDoctor[];
+    createdAt?: string;
+    updatedAt?: string;
 }

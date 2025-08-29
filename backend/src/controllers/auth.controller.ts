@@ -98,7 +98,7 @@ class AuthController {
         }
     }
 
-    public async passwordRecoveryRequest(
+    public async recoveryEmail(
         req: Request,
         res: Response,
         next: NextFunction,

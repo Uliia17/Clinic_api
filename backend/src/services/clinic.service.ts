@@ -4,32 +4,20 @@ import {
     IClinic,
     IClinicDTO,
     IClinicResponse,
-    IClinicQuery,
+    IClinicDoctor,
+    IClinicUpdateDTO,
 } from "../interfaces/clinic.interface";
 import { clinicRepository } from "../repositories/clinic.repository";
 import { doctorService } from "./doctor.service";
-import { serviceService } from "./service.service";
-import { IPaginatedResponse } from "../interfaces/paginated-response.interface";
+import { Types } from "mongoose";
 
 export class ClinicService {
-    public async searchClinics(
-        query: Partial<IClinicQuery> = {},
-    ): Promise<IPaginatedResponse<IClinicResponse>> {
-        const paginated = await clinicRepository.search(query as any);
-
-        const data = await Promise.all(
-            (paginated.data || []).map((c) => this.toResponse(c)),
-        );
-
-        return {
-            ...paginated,
-            data,
-        } as IPaginatedResponse<IClinicResponse>;
-    }
-
     public async getAll(): Promise<IClinicResponse[]> {
         const clinics: IClinic[] = await clinicRepository.findAll();
-        return await Promise.all(clinics.map((c) => this.toResponse(c)));
+
+        return await Promise.all(
+            clinics.map((clinic) => this.toResponse(clinic)),
+        );
     }
 
     public async create(clinicDto: IClinicDTO): Promise<IClinicResponse> {
@@ -47,13 +35,26 @@ export class ClinicService {
 
     public async updateById(
         id: string,
-        clinicDto: IClinicDTO,
+        dto: IClinicUpdateDTO,
     ): Promise<IClinicResponse> {
-        const updated = await clinicRepository.updateById(id, clinicDto);
+        if (!Types.ObjectId.isValid(id)) {
+            throw new ApiError("Invalid ID", StatusCodesEnum.BAD_REQUEST);
+        }
+
+        const updated = await clinicRepository.updateById(id, dto);
         if (!updated) {
             throw new ApiError("Clinic not found", StatusCodesEnum.NOT_FOUND);
         }
-        return await this.toResponse(updated);
+
+        const clinicWithAddress: IClinic = {
+            ...updated,
+            address:
+                dto.address && dto.address.trim() !== ""
+                    ? dto.address
+                    : updated.address || "-",
+        } as IClinic;
+
+        return await this.toResponse(clinicWithAddress);
     }
 
     public async deleteById(id: string): Promise<void> {
@@ -62,37 +63,39 @@ export class ClinicService {
             throw new ApiError("Clinic not found", StatusCodesEnum.NOT_FOUND);
         }
     }
-
     private async toResponse(clinic: IClinic): Promise<IClinicResponse> {
-        const doctorIds: string[] =
-            clinic.doctors && clinic.doctors.length
-                ? clinic.doctors.map((id: any) => String(id))
-                : [];
+        const doctorDocs = await doctorService.getByClinicIdFull(
+            String(clinic._id),
+        );
 
-        const serviceIds: string[] =
-            clinic.services && clinic.services.length
-                ? clinic.services.map((id: any) => String(id))
-                : [];
+        const doctors: IClinicDoctor[] = (doctorDocs || []).map((d) => ({
+            name: d.name,
+            surname: d.surname,
+            phone: d.phone && d.phone.trim() !== "" ? d.phone : "-",
+            services: Array.isArray(d.services)
+                ? d.services.map((s: any) =>
+                      typeof s === "string" ? s : s.name,
+                  )
+                : [],
+        }));
 
-        const doctors =
-            doctorIds.length > 0 ? await doctorService.getByIds(doctorIds) : [];
-
-        const services =
-            serviceIds.length > 0
-                ? await serviceService.getByIds(serviceIds)
-                : [];
+        const allServicesSet = new Set<string>();
+        doctors.forEach((doc) => {
+            (doc.services || []).forEach((svc) => {
+                if (svc) allServicesSet.add(svc);
+            });
+        });
 
         return {
-            _id: clinic._id ? String(clinic._id) : "",
+            _id: String(clinic._id),
             name: clinic.name,
+            address:
+                clinic.address && clinic.address.trim() !== ""
+                    ? clinic.address
+                    : "-",
+            phone: doctors.length > 0 ? doctors[0].phone : "-",
             doctors,
-            services,
-            createdAt: clinic.createdAt
-                ? new Date(clinic.createdAt).toISOString()
-                : undefined,
-            updatedAt: clinic.updatedAt
-                ? new Date(clinic.updatedAt).toISOString()
-                : undefined,
+            services: Array.from(allServicesSet),
         };
     }
 }

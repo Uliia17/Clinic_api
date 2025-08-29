@@ -19,7 +19,7 @@ const doctorSchema = new Schema<DoctorDocument>(
             type: String,
             enum: Object.values(RoleEnum),
             required: true,
-            default: RoleEnum.USER,
+            default: RoleEnum.DOCTOR,
         },
         isDeleted: { type: Boolean, default: false },
         isVerified: { type: Boolean, default: false },

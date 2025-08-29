@@ -50,8 +50,6 @@ export const DoctorValidator = {
         pageSize: Joi.number().integer().min(1).max(100).default(10),
 
         search: Joi.string().trim().allow("").optional(),
-
-        // order: передається як 'name' або '-name'
         order: Joi.string()
             .valid(
                 ...Object.values(QueryOrderEnumDoctors),

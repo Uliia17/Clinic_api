@@ -19,10 +19,6 @@ export interface IDoctor {
     updatedAt?: Date;
 }
 
-/**
- * DTO для створення лікаря (вхідні дані)
- * clinic/service можуть бути рядком (name) або ObjectId string
- */
 export interface IDoctorCreateDTO {
     name: string;
     surname: string;
@@ -36,9 +32,6 @@ export interface IDoctorCreateDTO {
     isActive?: boolean;
 }
 
-/**
- * DTO для оновлення лікаря
- */
 export interface IDoctorUpdateDTO {
     name?: string;
     surname?: string;
@@ -54,9 +47,6 @@ export interface IDoctorUpdateDTO {
     isActive?: boolean;
 }
 
-/**
- * Параметри запиту для списків лікарів (фільтрація/пагінація)
- */
 export interface IDoctorQuery {
     page?: number;
     pageSize?: number;
@@ -66,6 +56,8 @@ export interface IDoctorQuery {
     surname?: string;
     phone?: string;
     email?: string;
+    isVerified?: boolean;
+    isActive?: boolean;
 }
 
 export interface ClinicSummary {
@@ -89,6 +81,4 @@ export interface IDoctorResponse {
     role: RoleEnum;
     isVerified: boolean;
     isActive: boolean;
-    createdAt: string;
-    updatedAt: string;
 }

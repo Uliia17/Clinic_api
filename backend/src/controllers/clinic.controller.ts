@@ -1,18 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { clinicService } from "../services/clinic.service";
-import { IClinicDTO } from "../interfaces/clinic.interface";
 import { StatusCodesEnum } from "../enums/status.codes.enum";
+import { IClinicDTO, IClinicUpdateDTO } from "../interfaces/clinic.interface";
 
 class ClinicController {
-    public async search(req: Request, res: Response, next: NextFunction) {
-        try {
-            const clinics = await clinicService.searchClinics(req.query as any);
-            res.status(StatusCodesEnum.OK).json(clinics);
-        } catch (e) {
-            next(e);
-        }
-    }
-
     public async getAll(req: Request, res: Response, next: NextFunction) {
         try {
             const clinics = await clinicService.getAll();
@@ -45,8 +36,13 @@ class ClinicController {
     public async updateById(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
-            const clinicDto = req.body as IClinicDTO;
-            const updated = await clinicService.updateById(id, clinicDto);
+            const clinicDto: IClinicUpdateDTO = req.body;
+
+            const updated = await clinicService.updateById(
+                id,
+                clinicDto as IClinicUpdateDTO,
+            );
+
             res.status(StatusCodesEnum.OK).json(updated);
         } catch (e) {
             next(e);

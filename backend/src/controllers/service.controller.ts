@@ -9,10 +9,7 @@ import { serviceService } from "../services/service.service";
 import { IPaginatedResponse } from "../interfaces/paginated-response.interface";
 
 class ServiceController {
-    /**
-     * Повертає пагінований список послуг із фільтрацією та сортуванням
-     */
-    public async getServices(req: Request, res: Response, next: NextFunction) {
+    public async getAll(req: Request, res: Response, next: NextFunction) {
         try {
             const { name, order } = req.query as any;
             const page = Number(req.query.page) || 1;
@@ -28,9 +25,6 @@ class ServiceController {
         }
     }
 
-    /**
-     * Створює нову послугу
-     */
     public async create(req: Request, res: Response, next: NextFunction) {
         try {
             const dto = req.body as IServiceDTO;
@@ -41,9 +35,6 @@ class ServiceController {
         }
     }
 
-    /**
-     * Отримує послугу за ID
-     */
     public async getById(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
@@ -54,26 +45,27 @@ class ServiceController {
         }
     }
 
-    /**
-     * Оновлює послугу за ID
-     */
     public async updateById(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
-            const dto = req.body as IServiceDTO;
-            const data: IServiceResponse = await serviceService.updateById(
-                id,
-                dto,
-            );
+
+            let dto: any;
+            if (typeof req.body === "string") {
+                try {
+                    dto = JSON.parse(req.body);
+                } catch (e) {
+                    next(e);
+                }
+            } else {
+                dto = req.body;
+            }
+
+            const data = await serviceService.updateById(id, dto);
             res.status(StatusCodesEnum.OK).json(data);
         } catch (e) {
             next(e);
         }
     }
-
-    /**
-     * Видаляє послугу за ID
-     */
     public async deleteById(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;

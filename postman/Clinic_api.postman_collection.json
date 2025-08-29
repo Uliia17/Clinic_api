@@ -11,9 +11,6 @@
 			"item": [
 				{
 					"name": "all-doctors",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -27,12 +24,8 @@
 						},
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "urlencoded",
-							"urlencoded": []
-						},
 						"url": {
-							"raw": "{{mainurl}}/doctors?pageSize=1",
+							"raw": "{{mainurl}}/doctors",
 							"host": [
 								"{{mainurl}}"
 							],
@@ -42,7 +35,7 @@
 							"query": [
 								{
 									"key": "name",
-									"value": "Igor",
+									"value": "Anna",
 									"disabled": true
 								},
 								{
@@ -57,7 +50,7 @@
 								},
 								{
 									"key": "phone",
-									"value": "+380000000000",
+									"value": "380000000000",
 									"disabled": true
 								},
 								{
@@ -72,7 +65,8 @@
 								},
 								{
 									"key": "pageSize",
-									"value": "1"
+									"value": "1",
+									"disabled": true
 								}
 							]
 						}
@@ -106,7 +100,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "68a8c4381aa54c5b96618aac"
+									"value": "68b1879c6a28d5118a8a8784"
 								}
 							]
 						}
@@ -130,7 +124,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\"phone\": \"+380507771213\" \r\n}",
+							"raw": "{\r\n\"phone\": \"+380557771217\" \r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -149,7 +143,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "68a8c4381aa54c5b96618aac"
+									"value": "68b1879c6a28d5118a8a8784"
 								}
 							]
 						}
@@ -187,7 +181,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "68a8beba97d3ece8bcf854a1"
+									"value": "68b188166a28d5118a8a8795"
 								}
 							]
 						}
@@ -211,7 +205,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"Igor\",\r\n  \"surname\": \"Petrov\",\r\n  \"phone\": \"+380657771213\",\r\n  \"email\": \"Petrov1991@i.ua\",\r\n  \"password\": \"Password1234\",\r\n  \"clinics\": [\"Odrex\", \"Into-Sana\"],\r\n  \"services\": [\"therapist\", \"gynecologist\"]\r\n}",
+							"raw": "{\r\n  \"name\": \"Ivan\",\r\n  \"surname\": \"Vetrov\",\r\n  \"phone\": \"+380657770213\",\r\n  \"email\": \"Vetrov1991@i.ua\",\r\n  \"password\": \"Password1234!\",\r\n  \"clinics\": [\"Odrex\", \"Into-Sana\"],\r\n  \"services\": [\"therapist\"]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -274,6 +268,94 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "unblock",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{mainurl}}/doctors/unblock/:id",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"doctors",
+								"unblock",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "68b1879c6a28d5118a8a8784"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "block",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{mainurl}}/doctors/block/:id",
+							"host": [
+								"{{mainurl}}"
+							],
+							"path": [
+								"doctors",
+								"block",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "68b1879c6a28d5118a8a8784"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -296,34 +378,13 @@
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{
-									"key": "name",
-									"value": "OnClinic",
-									"type": "text"
-								},
-								{
-									"key": "name",
-									"value": "Odrex",
-									"type": "text"
-								},
-								{
-									"key": "name",
-									"value": "Into Sana",
-									"type": "text"
-								},
-								{
-									"key": "name",
-									"value": "St Ekaterina",
-									"type": "text"
-								},
-								{
-									"key": "name",
-									"value": "Dental",
-									"type": "text"
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Laserhouse\",\r\n    \"address\": \"st. Mudrogo, 13\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
 								}
-							]
+							}
 						},
 						"url": {
 							"raw": "{{mainurl}}/clinics",
@@ -353,7 +414,7 @@
 							"urlencoded": []
 						},
 						"url": {
-							"raw": "{{mainurl}}/clinics?order=name",
+							"raw": "{{mainurl}}/clinics",
 							"host": [
 								"{{mainurl}}"
 							],
@@ -373,7 +434,8 @@
 								},
 								{
 									"key": "order",
-									"value": "name"
+									"value": "name",
+									"disabled": true
 								}
 							]
 						}
@@ -397,7 +459,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "",
+							"raw": "{ \"address\": \"st. Gedrogo, 11\" }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -416,7 +478,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "68a1ef13f743def5b758174b"
+									"value": "68b17eaa68a8f993600b8b05"
 								}
 							]
 						}
@@ -443,7 +505,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"doctors\": [\"685da98d31a869452fd26fe8\"]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{mainurl}}/clinics/:id",
@@ -457,7 +519,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "68a1ef13f743def5b758174b"
+									"value": "68b17eaa68a8f993600b8b05"
 								}
 							]
 						}
@@ -495,7 +557,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "685da79231a869452fd26fc3"
+									"value": "68b18b31e1b4348ce8af36af"
 								}
 							]
 						}
@@ -527,30 +589,30 @@
 							"urlencoded": [
 								{
 									"key": "name",
-									"value": "Ophthalmologist",
+									"value": "ophthalmologist",
 									"type": "text"
 								},
 								{
 									"key": "name",
-									"value": "Surgery",
+									"value": "surgery",
 									"type": "text",
 									"disabled": true
 								},
 								{
 									"key": "name",
-									"value": "Dentist",
+									"value": "dentist",
 									"type": "text",
 									"disabled": true
 								},
 								{
 									"key": "name",
-									"value": "Gynecologist",
+									"value": "gynecologist",
 									"type": "text",
 									"disabled": true
 								},
 								{
 									"key": "name",
-									"value": "Therapist",
+									"value": "therapist",
 									"type": "text",
 									"disabled": true
 								}
@@ -577,7 +639,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{mainurl}}/services?order=-name",
+							"raw": "{{mainurl}}/services",
 							"host": [
 								"{{mainurl}}"
 							],
@@ -592,7 +654,8 @@
 								},
 								{
 									"key": "order",
-									"value": "-name"
+									"value": "-name",
+									"disabled": true
 								}
 							]
 						}
@@ -635,7 +698,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "685da87a31a869452fd26fdc"
+									"value": "68b17efc68a8f993600b8b26"
 								}
 							]
 						}
@@ -681,7 +744,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "685da87a31a869452fd26fdc"
+									"value": "68b19714834df3f01bf36d25"
 								}
 							]
 						}
@@ -705,7 +768,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Urologist\"\r\n    }",
+							"raw": "{\r\n    \"name\": \"urologist\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -724,7 +787,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "685ddbfaeec98841333b2a6d"
+									"value": "68b1879c6a28d5118a8a8781"
 								}
 							]
 						}
@@ -743,7 +806,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"Alla\",\r\n  \"surname\": \"Ivanova\",\r\n  \"phone\": \"+380667778877\",\r\n  \"email\": \"655ghjn@gmail.com\",\r\n  \"password\": \"gghR#3\",\r\n  \"clinics\": [\"OnClinic\", \"Odrex\"],\r\n  \"services\": [\"surgery\", \"therapist\"]  \r\n}\r\n",
+							"raw": "{\r\n  \"name\": \"Anna\",\r\n  \"surname\": \"Panova\",\r\n  \"phone\": \"+380667778977\",\r\n  \"email\": \"666Anna@gmail.com\",\r\n  \"password\": \"Anna666!\",\r\n  \"clinics\": [\"Dental\"],\r\n  \"services\": [\"dentist\", \"therapist\"]  \r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -790,12 +853,12 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "655ghjn@gmail.com",
+									"value": "polska1991@i.ua",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "gghR#3",
+									"value": "Polskaya17!",
 									"type": "text"
 								}
 							]
@@ -851,7 +914,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"polska1991@i.ua\",\r\n  \"password\": \"Polskaya\"\r\n}\r\n",
+							"raw": "{\r\n  \"email\": \"polska1991@i.ua\",\r\n  \"password\": \"Polskaya17!\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -866,50 +929,6 @@
 							"path": [
 								"auth",
 								"register-admin"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "sign-in-admin",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const res = pm.response.json();\r",
-									"pm.environment.set(\"accessToken\", res.tokens.accessToken);\r",
-									"pm.environment.set(\"refreshToken\", res.tokens.refreshToken);"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"polska1991@i.ua\",\r\n  \"password\": \"polskaya\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{mainurl}}/auth/sign-in",
-							"host": [
-								"{{mainurl}}"
-							],
-							"path": [
-								"auth",
-								"sign-in"
 							]
 						}
 					},
@@ -936,7 +955,7 @@
 							"variable": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4YThiY2NhOTdkM2VjZThiY2Y4NTQ3ZiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NTg4ODg0MywiZXhwIjoxNzU1ODkyNDQzfQ.CnNB2ze-5xCtayaGXqBeF2pHJ4v_1gbj6LPKO3-bVF4"
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4YjE3ZGQ0NjhhOGY5OTM2MDBiOGFmNiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NjQ2MjU0OCwiZXhwIjoxNzU2NDY2MTQ4fQ.shxtXUcTsr_JKB_SSTwtwB7OSQmronRcyabUwpHZbqU"
 								}
 							]
 						}
@@ -1034,7 +1053,7 @@
 							"urlencoded": [
 								{
 									"key": "password",
-									"value": "polskaya",
+									"value": "Polskaya17!",
 									"type": "text"
 								}
 							]
@@ -1052,7 +1071,7 @@
 							"variable": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4YThiY2NhOTdkM2VjZThiY2Y4NTQ3ZiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NTg4OTE2OSwiZXhwIjoxNzU1ODg5NzY5fQ.tyhYW50mlyCBpbkn0ODzUci86nrdlZ8pocx_uLw-yrE"
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4YjE3ZGQ0NjhhOGY5OTM2MDBiOGFmNiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NjQ2Mjc4NCwiZXhwIjoxNzU2NDYzMzg0fQ.WLD0YYILoepAr7isx1HF2Go6XA1u7LorLYs2FRJVPjw"
 								}
 							]
 						}

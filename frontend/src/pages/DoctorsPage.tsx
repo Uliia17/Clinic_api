@@ -4,6 +4,8 @@ import { IDoctor } from "../interfaces/doctorInterface";
 export const DoctorsPage = () => {
     const [doctors, setDoctors] = useState<IDoctor[]>([]);
     const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState(""); // для пошуку
+    const [sortField, setSortField] = useState<keyof IDoctor>("name"); // для сортування
 
     useEffect(() => {
         fetch("http://localhost:7000/doctors")
@@ -20,9 +22,39 @@ export const DoctorsPage = () => {
 
     if (loading) return <p>Loading doctors...</p>;
 
+    const filteredDoctors = doctors
+        .filter(d =>
+            [d.name, d.surname, d.phone, d.email]
+                .filter(Boolean)
+                .some(val => val!.toLowerCase().includes(search.toLowerCase()))
+        )
+        .sort((a, b) => {
+            const valA = String(a[sortField] ?? "");
+            const valB = String(b[sortField] ?? "");
+            return valA.localeCompare(valB);
+        });
+
     return (
-        <div>
+        <div style={{ padding: 16 }}>
             <h1>Doctors</h1>
+
+            <div style={{ marginBottom: 12 }}>
+                <input
+                    type="text"
+                    placeholder="Search by name, surname, phone, email"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    style={{ padding: 6, width: 300, marginRight: 12 }}
+                />
+                <label>
+                    Sort by:{" "}
+                    <select value={sortField} onChange={(e) => setSortField(e.target.value as keyof IDoctor)}>
+                        <option value="name">Name</option>
+                        <option value="surname">Surname</option>
+                    </select>
+                </label>
+            </div>
+
             <table border={1} cellPadding={5}>
                 <thead>
                 <tr>
@@ -37,10 +69,10 @@ export const DoctorsPage = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {doctors.length === 0 ? (
+                {filteredDoctors.length === 0 ? (
                     <tr><td colSpan={8}>No doctors found</td></tr>
                 ) : (
-                    doctors.map((d) => (
+                    filteredDoctors.map((d) => (
                         <tr key={d._id}>
                             <td>{d._id}</td>
                             <td>{d.email}</td>
@@ -54,9 +86,9 @@ export const DoctorsPage = () => {
                     ))
                 )}
                 </tbody>
-
             </table>
         </div>
     );
 };
+
 
