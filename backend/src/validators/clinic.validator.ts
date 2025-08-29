@@ -17,7 +17,7 @@ export class ClinicValidator {
 
     public static create = joi.object({
         name: this.nameSchema,
-        address: joi.string().max(100).optional(),
+        address: joi.string().trim().min(3).max(200).optional(),
         doctors: joi.array().items(this.objectId).optional(),
         services: joi.array().items(this.objectId).optional(),
     });

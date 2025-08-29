@@ -30,7 +30,7 @@ export const DoctorValidator = {
             .valid(...Object.values(RoleEnum))
             .optional(),
         avatar: Joi.string().uri().optional(),
-    }),
+    }).options({ allowUnknown: true }),
 
     update: Joi.object({
         name: nameSchema.optional(),

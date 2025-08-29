@@ -100,7 +100,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "68b1879c6a28d5118a8a8784"
+									"value": "68b213cb1482b9b1efe11786"
 								}
 							]
 						}
@@ -143,7 +143,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "68b1879c6a28d5118a8a8784"
+									"value": "68b213cb1482b9b1efe11786"
 								}
 							]
 						}
@@ -181,7 +181,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "68b188166a28d5118a8a8795"
+									"value": "68b213cb1482b9b1efe11786"
 								}
 							]
 						}
@@ -205,7 +205,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"Ivan\",\r\n  \"surname\": \"Vetrov\",\r\n  \"phone\": \"+380657770213\",\r\n  \"email\": \"Vetrov1991@i.ua\",\r\n  \"password\": \"Password1234!\",\r\n  \"clinics\": [\"Odrex\", \"Into-Sana\"],\r\n  \"services\": [\"therapist\"]\r\n}",
+							"raw": "{\r\n  \"name\": \"Ilya\",\r\n  \"surname\": \"Petrov\",\r\n  \"phone\": \"+380657773213\",\r\n  \"email\": \"Petrov1991@i.ua\",\r\n  \"password\": \"Password1234!\",\r\n  \"clinics\": [\"Dental\", \"Into-Sana\"],\r\n  \"services\": [\"therapist\", \"dentist\"]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -478,7 +478,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "68b17eaa68a8f993600b8b05"
+									"value": "68b214621482b9b1efe117b9"
 								}
 							]
 						}
@@ -519,7 +519,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "68b17eaa68a8f993600b8b05"
+									"value": "68b214621482b9b1efe117b9"
 								}
 							]
 						}
@@ -557,7 +557,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "68b18b31e1b4348ce8af36af"
+									"value": "68b214621482b9b1efe117b9"
 								}
 							]
 						}
@@ -585,38 +585,13 @@
 						"method": "POST",
 						"header": [],
 						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{
-									"key": "name",
-									"value": "ophthalmologist",
-									"type": "text"
-								},
-								{
-									"key": "name",
-									"value": "surgery",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "name",
-									"value": "dentist",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "name",
-									"value": "gynecologist",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "name",
-									"value": "therapist",
-									"type": "text",
-									"disabled": true
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"optolmologist\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
 								}
-							]
+							}
 						},
 						"url": {
 							"raw": "{{mainurl}}/services",
@@ -698,7 +673,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "68b17efc68a8f993600b8b26"
+									"value": "68b2150a1482b9b1efe117dd"
 								}
 							]
 						}
@@ -744,7 +719,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "68b19714834df3f01bf36d25"
+									"value": "68b2150a1482b9b1efe117dd"
 								}
 							]
 						}
@@ -787,7 +762,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "68b1879c6a28d5118a8a8781"
+									"value": "68b2150a1482b9b1efe117dd"
 								}
 							]
 						}
@@ -955,7 +930,7 @@
 							"variable": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4YjE3ZGQ0NjhhOGY5OTM2MDBiOGFmNiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NjQ2MjU0OCwiZXhwIjoxNzU2NDY2MTQ4fQ.shxtXUcTsr_JKB_SSTwtwB7OSQmronRcyabUwpHZbqU"
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4YjIxMDk1ZGY0YzE0N2IzMmY0OTVmOCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NjUwMDExNywiZXhwIjoxNzU2NTAzNzE3fQ.c1rODvwCWNMidZB3Oyk2Ykpy5FfqTL3ieEnVGXx7YBg"
 								}
 							]
 						}
@@ -1071,7 +1046,7 @@
 							"variable": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4YjE3ZGQ0NjhhOGY5OTM2MDBiOGFmNiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NjQ2Mjc4NCwiZXhwIjoxNzU2NDYzMzg0fQ.WLD0YYILoepAr7isx1HF2Go6XA1u7LorLYs2FRJVPjw"
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkb2N0b3JJZCI6IjY4YjIxMDk1ZGY0YzE0N2IzMmY0OTVmOCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1NjUwMDI2MCwiZXhwIjoxNzU2NTAwODYwfQ.z5SVD3WwLr2rlhfswyq5Snd-dTQWzN0M6vB0lsK2B7o"
 								}
 							]
 						}

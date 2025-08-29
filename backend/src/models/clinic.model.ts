@@ -6,7 +6,7 @@ export type ClinicDocument = IClinic & Document;
 const clinicSchema = new Schema<ClinicDocument>(
     {
         name: { type: String, required: true, unique: true, index: true },
-        address: { type: String, required: true, default: "" },
+        address: { type: String, required: false },
         doctors: [
             {
                 type: Types.ObjectId,
